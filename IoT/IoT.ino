@@ -1,17 +1,35 @@
 #include <WiFi.h>
+#include <PubSubClient.h>
 #include <NimBLEDevice.h>
 #include <esp_heap_caps.h>
 
 #define SENSOR_COUNT 3  // Number of force sensors
 
-const char *ssid = "napatchol's Galaxy Note10+";
-const char *password = "napatchol";
+// #define MQTT_BROKER "test.mosquitto.org"
+#define MQTT_BROKER "broker.hivemq.com"
+#define MQTT_PORT (1883)
+
+#define MQTT_FALL_TOPIC "uok/iot/nt375/smart_shoe/fall"
+#define MQTT_STEP_TOPIC "uok/iot/nt375/smart_shoe/step"
+#define MQTT_FORCE_TOPIC "uok/iot/nt375/smart_shoe/force"
+#define MQTT_UB_TOPIC "uok/iot/nt375/smart_shoe/unbalance"
+
+#define SSID "napatchol's Galaxy Note10+"
+#define WIFI_PWD "napatchol"
+
+// Define MQTT Client Object
+WiFiClient espClient;
+PubSubClient client(espClient);
 
 NimBLEServer *pServer;
+NimBLECharacteristic *forceChar[SENSOR_COUNT];
+
+// Timer for periodic MQTT uploads (every 5 minutes)
+unsigned long lastUploadTime = 0;
+const unsigned long uploadInterval = 1 * 60 * 1000;  // 5 minutes
 
 int sensorPins[SENSOR_COUNT] = { A2, A3, A4 };
 int readings[SENSOR_COUNT][3];  // Store last 3 readings for each sensor
-NimBLECharacteristic *forceChar[SENSOR_COUNT];
 
 class MyServerCallbacks : public NimBLEServerCallbacks {
 public:
@@ -24,25 +42,46 @@ public:
   }
 };
 
+void WiFiSetUp() {
+  if (WiFi.status() == WL_CONNECTED) return;
+
+  // Wi-Fi Setup
+  Serial.print("Connecting to Wi-Fi...");
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(SSID, WIFI_PWD);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Wi-Fi Connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnectMQTT() {
+  while (!client.connected()) {                                              // check connected status
+    if (client.connect(("ESP32-" + String(random(0xffff), HEX)).c_str())) {  // connect with random id
+      Serial.println("MQTT connected.");                                     // report success
+    } else {
+      Serial.printf("failed , rc=%d try again in 5 seconds", client.state());  // report error
+      delay(5000);                                                             // wait 5 seconds
+    }
+  }
+}
+
 void setup() {
   Serial.begin(115200);
 
   // Release Classic Bluetooth memory to free up RAM
   esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
 
-  // Wi-Fi Setup
-  Serial.print("Connecting to Wi-Fi...");
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  // WiFi Setup
+  WiFiSetUp();
 
-  // Wi-Fi Setup
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("Wi-Fi Connected");
+  // Handle MQTT connection
+  client.setServer(MQTT_BROKER, MQTT_PORT);
+  reconnectMQTT();
 
   // BLE Setup
   Serial.println("Starting BLE...");
@@ -76,6 +115,9 @@ void setup() {
   for (int i = 0; i < SENSOR_COUNT; i++) {
     pinMode(sensorPins[i], INPUT);  // Set sensor pins as input
   }
+
+  // set the ADC attenuation to 11 dB (up to ~3.3V input)
+  analogSetAttenuation(ADC_11db);
 
   // Check available memory
   Serial.print("Free memory: ");
@@ -119,8 +161,43 @@ void readForceSensors() {
   }
 }
 
+void uploadData() {
+  // WiFi Setup
+  WiFiSetUp();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWi-Fi Connected!");
+    reconnectMQTT();
+
+    // Create JSON payload
+    String payload = "{";
+    for (int i = 0; i < SENSOR_COUNT; i++) {
+      payload += "\"sensor_" + String(i) + "\":" + String(medianFilter(i));
+      if (i < SENSOR_COUNT - 1) payload += ",";
+    }
+    payload += "}";
+
+    // Publish to MQTT
+    client.publish(MQTT_FORCE_TOPIC, payload.c_str());
+    Serial.println("Data Uploaded: " + payload);
+    
+    delay(1000);
+    // Power Saving: Turn Wi-Fi OFF after upload
+    WiFi.mode(WIFI_OFF);
+    Serial.println("Wi-Fi OFF. Waiting for next upload...");
+  } else {
+    Serial.println("Wi-Fi Connection Failed!");
+  }
+}
+
 void loop() {
   // Your application logic here
   readForceSensors();
+
+  if (millis() - lastUploadTime >= uploadInterval) {
+    uploadData();
+    lastUploadTime = millis();
+  }
+
   delay(1000);
 }

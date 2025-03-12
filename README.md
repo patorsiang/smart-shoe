@@ -38,6 +38,7 @@ this is a project for COMP8380 SPR: Internet of Things and Mobile Devices (2024/
 
 - [x] set up ble and wifi in esp32
 - [x] read force, apply Median filter, send to BLE
+- [x] sead force by mqtt
 
 ## References
 
