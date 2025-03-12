@@ -34,6 +34,11 @@ this is a project for COMP8380 SPR: Internet of Things and Mobile Devices (2024/
     - Light Sleep (0.8mA) → If stable for 5 minutes, enter low-power mode.
     - Deep Sleep (10μA) → If stable for 30 minutes, disable force sensor until pressure change.
 
+## Progress
+
+- [x] set up ble and wifi in esp32
+- [x] read force, apply Median filter, send to BLE
+
 ## References
 
 - <https://www.mdpi.com/1424-8220/21/15/5240>
