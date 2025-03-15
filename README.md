@@ -26,7 +26,7 @@ this is a project for COMP8380 SPR: Internet of Things and Mobile Devices (2024/
 
 - Uneven Weight Balancing
   - Sensor: Force sensor
-  - Filter: Median filter
+  - Filter: Median filter + Adaptive threshold
   - Network: BLE (low power, continuous monitoring) + Wi-Fi (only for periodic uploads)
   - Power Mode:
     - Active Mode (160-260mA) → While adjusting weight.
@@ -38,7 +38,7 @@ this is a project for COMP8380 SPR: Internet of Things and Mobile Devices (2024/
 
 - [x] set up ble and wifi in esp32
 - [x] read force, apply Median filter, send to BLE
-- [x] sead force by mqtt
+- [x] submit force by mqtt
 
 ## References
 
