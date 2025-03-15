@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 NimBLECharacteristic *forceChar[SENSOR_COUNT]; // Define forceChar here
+NimBLECharacteristic *stepChar;
 
 class MyServerCallbacks : public NimBLEServerCallbacks
 {
@@ -29,12 +30,18 @@ void setupBLE()
 
     NimBLEService *pService = pServer->createService("12345678-1234-5678-1234-56789abcdef0");
 
+    // Force Sensor BLE Characteristic
     for (int i = 0; i < SENSOR_COUNT; i++)
     {
         char uuid[40];
         snprintf(uuid, sizeof(uuid), "abcdef0%d-1234-5678-1234-56789abcdef0", i);
         forceChar[i] = pService->createCharacteristic(uuid, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
     }
+
+    // Step Counter BLE Characteristic
+    stepChar = pService->createCharacteristic(
+        "abcd1234-5678-90ab-cdef-1234567890ef",
+        NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
 
     pService->start();
 

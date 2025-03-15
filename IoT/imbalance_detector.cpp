@@ -6,7 +6,6 @@
 
 #define BALANCE_THRESHOLD 2000
 #define MIN_IMBALANCE_TIME 30000
-#define MQTT_UB_TOPIC "uok/iot/nt375/smart_shoe/unbalance"
 
 bool imbalanceDetected = false;
 unsigned long imbalanceStartTime = 0;
@@ -39,36 +38,5 @@ void detectUnevenWeight(int foreForce, int heelForce)
             Serial.println("✔️ Balance Restored");
             imbalanceDetected = false;
         }
-    }
-}
-
-void uploadData()
-{
-    WiFiSetUp();
-    if (WiFi.status() == WL_CONNECTED)
-    {
-        Serial.println("\nWi-Fi Connected!");
-        reconnectMQTT();
-
-        String payload = "{";
-        for (int i = 0; i < SENSOR_COUNT; i++)
-        {
-            payload += "\"sensor_" + String(i) + "\":" + String(medianFilter(i));
-            if (i < SENSOR_COUNT - 1)
-                payload += ",";
-        }
-
-        payload += imbalanceDetected ? ",\"imbalance\":\"true\"}" : "\"imbalance\":\"false\"}";
-
-        client.publish(MQTT_UB_TOPIC, payload.c_str());
-        Serial.println("Data Uploaded: " + payload);
-
-        delay(1000);
-        WiFi.mode(WIFI_OFF);
-        Serial.println("Wi-Fi OFF. Waiting for next upload...");
-    }
-    else
-    {
-        Serial.println("Wi-Fi Connection Failed!");
     }
 }

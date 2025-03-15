@@ -3,7 +3,8 @@
 #include "imbalance_detector.h"
 #include "ble_manager.h"
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   WiFiSetUp();
 
@@ -12,14 +13,17 @@ void setup() {
 
   reconnectMQTT();
   setupBLE();
-  setupSensors();
+  setupForceSensors();
+  setupMPU();
 }
 
-void loop() {
+void loop()
+{
   readForceSensors();
-  // if (millis() - lastUploadTime >= uploadInterval) {
-  //   uploadData();
-  //   lastUploadTime = millis();
-  // }
+  if (millis() - lastUploadTime >= uploadInterval)
+  {
+    uploadData();
+    lastUploadTime = millis();
+  }
   delay(1000);
 }

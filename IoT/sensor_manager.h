@@ -4,13 +4,11 @@
 #include <NimBLEDevice.h>
 #include "config.h" // Include global config file
 
-#define SENSOR_COUNT 3
-
-extern int sensorPins[SENSOR_COUNT];
-extern int readings[SENSOR_COUNT][3];
-
-void setupSensors();
+void setupForceSensors();
 void readForceSensors();
 int medianFilter(int index);
+float readMPU();
+
+void setupMPU();
 
 #endif
