@@ -13,6 +13,7 @@ int readings[SENSOR_COUNT][3];
 // MPU Setup
 const int MPU = 0x68;
 int16_t AcX, AcY, AcZ;
+int16_t calibratedOffsetX, calibratedOffsetY, calibratedOffsetZ;
 
 void setupForceSensors() {
   for (int i = 0; i < SENSOR_COUNT; i++) {
@@ -72,11 +73,66 @@ void readForceSensors() {
 
 void setupMPU() {
   Wire.begin();
+
+  Serial.println("🔄 Resetting MPU6050...");
+
+  // 🛠️ Hard Reset MPU6050
   Wire.beginTransmission(MPU);
   Wire.write(0x6B);
-  Wire.write(0);
+  Wire.write(0x80);  // Reset bit
   Wire.endTransmission(true);
+  delay(100);  // Wait for reset
+
+  // 🛠️ Wake up MPU6050
+  Wire.beginTransmission(MPU);
+  Wire.write(0x6B);
+  Wire.write(0x00);
+  Wire.endTransmission(true);
+  delay(100);
+
+  // 🚀 Set Accelerometer to ±2g for best accuracy
+  Wire.beginTransmission(MPU);
+  Wire.write(0x1C);
+  Wire.write(0x00);
+  Wire.endTransmission(true);
+
+  // ✅ Compute Automatic Offset Calibration
+  int16_t AcX, AcY, AcZ;
+  long sumX = 0, sumY = 0, sumZ = 0;
+  const int samples = 500;  // Increase samples for better accuracy
+
+  Serial.println("🔄 Calibrating MPU6050... Please keep the shoe still.");
+
+  for (int i = 0; i < samples; i++) {
+    Wire.beginTransmission(MPU);
+    Wire.write(0x3B);
+    Wire.endTransmission(false);
+    Wire.requestFrom(MPU, 6, true);
+
+    AcX = Wire.read() << 8 | Wire.read();
+    AcY = Wire.read() << 8 | Wire.read();
+    AcZ = Wire.read() << 8 | Wire.read();
+
+    sumX += AcX;
+    sumY += AcY;
+    sumZ += AcZ;
+    delay(5);
+  }
+
+  // Compute Average Offsets
+  int16_t offsetX = sumX / samples;
+  int16_t offsetY = sumY / samples;
+  int16_t offsetZ = sumZ / samples - 16384;  // Subtract gravity
+
+  // Store Offsets Globally
+  calibratedOffsetX = offsetX;
+  calibratedOffsetY = offsetY;
+  calibratedOffsetZ = offsetZ;
+
+  Serial.println("✅ MPU6050 Auto-Calibrated!");
+  Serial.printf("Offsets -> X: %d, Y: %d, Z: %d\n", offsetX, offsetY, offsetZ);
 }
+
 
 float readMPU() {
   Wire.beginTransmission(MPU);
@@ -88,6 +144,19 @@ float readMPU() {
   AcY = Wire.read() << 8 | Wire.read();
   AcZ = Wire.read() << 8 | Wire.read();
 
+  // ✅ Apply Auto-Calibration (Subtract Offsets)
+  AcX -= calibratedOffsetX;
+  AcY -= calibratedOffsetY;
+  AcZ -= calibratedOffsetZ;
+
+  Serial.print("AcX: ");
+  Serial.println(AcX);
+  Serial.print("AcY: ");
+  Serial.println(AcY);
+  Serial.print("AcZ: ");
+  Serial.println(AcZ);
+
+  // Convert to G-force (assuming ±2g range)
   float acceleration = sqrt(AcX * AcX + AcY * AcY + AcZ * AcZ) / 16384.0;
 
   Serial.printf("📊 Acceleration Magnitude: %.2f G\n", acceleration);

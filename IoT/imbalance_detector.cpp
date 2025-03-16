@@ -4,9 +4,6 @@
 #include "config.h" // Ensure SENSOR_COUNT is defined
 #include <Arduino.h>
 
-#define BALANCE_THRESHOLD 2000
-#define MIN_IMBALANCE_TIME 30000
-
 bool imbalanceDetected = false;
 unsigned long imbalanceStartTime = 0;
 
