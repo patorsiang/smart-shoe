@@ -3,7 +3,6 @@
 #include "imbalance_detector.h"
 #include "step_detector.h"
 #include "config.h" // Ensure SENSOR_COUNT is defined
-#include <Arduino.h>
 
 #define MQTT_UB_TOPIC "uok/iot/nt375/smart_shoe/unbalance"
 

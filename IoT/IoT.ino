@@ -1,6 +1,7 @@
 #include "wifi_manager.h"
 #include "sensor_manager.h"
 #include "imbalance_detector.h"
+#include "fall_detector.h"
 #include "ble_manager.h"
 
 void setup()
@@ -15,6 +16,7 @@ void setup()
   setupBLE();
   setupForceSensors();
   setupMPU();
+  readMPU();
 }
 
 void loop()
@@ -25,5 +27,6 @@ void loop()
     uploadData();
     lastUploadTime = millis();
   }
+  detectFall();
   delay(1000);
 }

@@ -1,6 +1,5 @@
 #include "ble_manager.h"
 #include "config.h" // Ensure SENSOR_COUNT is defined before use
-#include <Arduino.h>
 
 NimBLECharacteristic *forceChar[SENSOR_COUNT]; // Define forceChar here
 NimBLECharacteristic *stepChar;
