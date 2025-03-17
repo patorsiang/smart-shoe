@@ -3,6 +3,7 @@
 
 NimBLECharacteristic *forceChar[SENSOR_COUNT]; // Define forceChar here
 NimBLECharacteristic *stepChar;
+NimBLECharacteristic *fallChar;
 
 class MyServerCallbacks : public NimBLEServerCallbacks
 {
@@ -40,6 +41,11 @@ void setupBLE()
     // Step Counter BLE Characteristic
     stepChar = pService->createCharacteristic(
         "abcd1234-5678-90ab-cdef-1234567890ef",
+        NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+
+    // Fall Counter BLE Characteristic
+    fallChar = pService->createCharacteristic(
+        "1234abcd-5678-90ab-cdef-1234567890ef",
         NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
 
     pService->start();

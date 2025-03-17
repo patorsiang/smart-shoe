@@ -18,7 +18,7 @@ void detectUnevenWeight(int foreForce, int heelForce)
     int forceDifference = abs(foreForce - heelForce);
     float imbalancePercent = (forceDifference * 100.0) / totalForce; // Compute % imbalance
 
-    if (imbalancePercent > BALANCE_PERCENT_THRESHOLDs)
+    if (imbalancePercent > BALANCE_PERCENT_THRESHOLD)
     {
         if (!imbalanceDetected)
         {

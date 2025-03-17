@@ -8,4 +8,6 @@ void setupBLE();
 
 extern NimBLECharacteristic *forceChar[SENSOR_COUNT]; // Declare forceChar globally
 extern NimBLECharacteristic *stepChar;
+extern NimBLECharacteristic *fallChar;
+
 #endif

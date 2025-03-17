@@ -16,7 +16,7 @@ void setup()
   setupBLE();
   setupForceSensors();
   setupMPU();
-  readMPU();
+  getAccelerometer();
 }
 
 void loop()

@@ -1,66 +1,73 @@
 #include "fall_detector.h"
 #include "wifi_manager.h"
-#include "sensor_manager.h"
 #include "ble_manager.h"
+#include "sensor_manager.h"
 
-static int16_t lastAcX = 0;
-static float baselineAccMagnitude = 1.00;
-static unsigned long lastBaselineUpdate = 0;
+// Kalman filter variables
+float kalmanAngleX = 0;
+float kalmanAngleY = 0;
+float kalmanAngleZ = 0;
+float kalmanErrorX = 1, kalmanErrorY = 1, kalmanErrorZ = 1;
+const float R_measure = 0.02; // Measurement noise
+const float Q_angle = 0.01;   // Process noise
 
+// Low-pass filter variables
+#define ALPHA 0.6 // Low-pass filter smoothing factor
+
+// Thresholds
+#define FALL_THRESHOLD 1.2 // Fall acceleration threshold in G
+#define TRIP_THRESHOLD 0.8 // Trip forward acceleration threshold in G
+
+// Low-pass filter to reduce noise
+float lowPassFilter(float newValue, float previousValue)
+{
+    return ALPHA * newValue + (1 - ALPHA) * previousValue;
+}
+
+// Kalman filter for smoother motion estimation
+float kalmanFilter(float newAngle, float &kalmanAngle, float &kalmanError)
+{
+    kalmanAngle += Q_angle; // Predict
+    kalmanError += Q_angle; // Update error
+
+    float K = kalmanError / (kalmanError + R_measure); // Kalman gain
+    kalmanAngle += K * (newAngle - kalmanAngle);
+    kalmanError *= (1 - K); // Update error covariance
+
+    return kalmanAngle;
+}
+
+// Fall detection logic
 void detectFall()
 {
-    float accMagnitude = readMPU(); // Get total acceleration magnitude
+    static float lastAcX = 0, lastAcY = 0, lastAcZ = 0;
 
-    getCalibratedAccelerometer();
+    calibratedAccelerometer();
 
-    // Compute % Increase in Forward Acceleration
-    float tripIncrease = (abs(AcX - lastAcX) * 100.0) / max(abs(lastAcX), 1);
+    AcX = lowPassFilter(AcX, lastAcX);
+    AcY = lowPassFilter(AcY, lastAcY);
+    AcZ = lowPassFilter(AcZ, lastAcZ);
 
-    // Dynamic Acceleration Threshold (Adapts Over Time)
-    float dynamicThreshold = baselineAccMagnitude * 1.5;
+    AcX = kalmanFilter(AcX, kalmanAngleX, kalmanErrorX);
+    AcY = kalmanFilter(AcY, kalmanAngleY, kalmanErrorY);
+    AcZ = kalmanFilter(AcZ, kalmanAngleZ, kalmanErrorZ);
 
-    // Detect "Tripped"
-    if (tripIncrease > TRIP_PERCENT_THRESHOLD && accMagnitude > dynamicThreshold)
+    lastAcX = AcX;
+    lastAcY = AcY;
+    lastAcZ = AcZ;
+
+    float acceleration = getAccelerometer();
+
+    if (acceleration > FALL_THRESHOLD)
     {
-        Serial.printf("⚠️ [WARNING] Tripped! Forward Acceleration Increased by %.1f%%\n", tripIncrease);
-
-        // BLE Notify
-        stepChar->setValue("Tripped");
-        stepChar->notify();
-
-        // MQTT Emergency Alert (Wi-Fi needed)
-        if (WiFi.status() == WL_CONNECTED)
-        {
-            client.publish("uok/iot/nt375/smart_shoe/fall_alert", "Tripped Detected!");
-            Serial.println("📡 Emergency Alert Sent!");
-        }
-
-        // Update Last Known X-Axis Acceleration Only When Tripping Happens
-        lastAcX = AcX;
-    }
-
-    // Compute % Drop for Fall Detection (Using Dynamic Baseline)
-    float dropPercent = ((baselineAccMagnitude - accMagnitude) * 100.0) / baselineAccMagnitude;
-
-    if (dropPercent > FALL_PERCENT_THRESHOLD)
-    {
-        Serial.println("🚨 [ALERT] Fall Detected! Significant Drop in Acceleration.");
-
-        stepChar->setValue("Fell!");
-        stepChar->notify();
+        Serial.println("🚨 Fall Detected!");
+        fallChar->setValue("Fall Detected!");
+        fallChar->notify();
 
         if (WiFi.status() == WL_CONNECTED)
         {
-            client.publish("uok/iot/nt375/smart_shoe/fall_alert", "Emergency Fall Detected!");
+            client.publish("smart_shoe/fall_alert", "Emergency Fall Detected!");
             Serial.println("📡 Emergency Alert Sent!");
         }
-    }
-
-    // Update Baseline Acceleration Every 5 Sec
-    if (millis() - lastBaselineUpdate > 5000)
-    {
-        baselineAccMagnitude = accMagnitude; // Reset baseline to adapt over time
-        lastBaselineUpdate = millis();
-        Serial.printf("🔄 Baseline Acceleration Updated: %.2f G\n", baselineAccMagnitude);
     }
 }

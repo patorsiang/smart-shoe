@@ -16,7 +16,7 @@ void detectStep(int foreForce, int heelForce)
 
   // If either front or heel force increases by STEP_PERCENT_THRESHOLD
   if ((foreChange > STEP_PERCENT_THRESHOLD || heelChange > STEP_PERCENT_THRESHOLD) &&
-      readMPU() > MPU_ACC_THRESHOLD)
+      getAccelerometer() > MPU_ACC_THRESHOLD)
   {
     stepCount++;
     lastStepTime = millis();

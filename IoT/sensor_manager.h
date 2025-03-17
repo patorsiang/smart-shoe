@@ -9,8 +9,8 @@ extern int16_t AcX, AcY, AcZ;
 void setupForceSensors();
 void readForceSensors();
 int medianFilter(int index);
-float readMPU();
-void getCalibratedAccelerometer();
+float getAccelerometer();
+void calibratedAccelerometer();
 void setupMPU();
 
 #endif

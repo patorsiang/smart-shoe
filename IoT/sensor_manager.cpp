@@ -78,7 +78,7 @@ void readForceSensors()
   detectStep(forePressure, heelPressure);
 }
 
-void getAccelerometer()
+void readAccelerometer()
 {
   Wire.beginTransmission(MPU);
   Wire.write(0x3B);
@@ -124,7 +124,7 @@ void setupMPU()
 
   for (int i = 0; i < samples; i++)
   {
-    getAccelerometer(); // Read sensor values
+    readAccelerometer(); // Read sensor values
 
     sumX += AcX;
     sumY += AcY;
@@ -141,9 +141,9 @@ void setupMPU()
   Serial.printf("Offsets -> X: %d, Y: %d, Z: %d\n", calibratedOffsetX, calibratedOffsetY, calibratedOffsetZ);
 }
 
-float readMPU()
+float getAccelerometer()
 {
-  getCalibratedAccelerometer();
+  calibratedAccelerometer();
 
   Serial.printf("📊 Calibrated AcX: %d, AcY: %d, AcZ: %d\n", AcX, AcY, AcZ);
 
@@ -154,9 +154,9 @@ float readMPU()
   return acceleration;
 }
 
-void getCalibratedAccelerometer()
+void calibratedAccelerometer()
 {
-  getAccelerometer();
+  readAccelerometer();
 
   // Ensure Offsets Are Applied Correctly
   AcX -= calibratedOffsetX;
