@@ -64,7 +64,10 @@ interface BluetoothRemoteGATTCharacteristic
   stopNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
   addEventListener(
     type: "characteristicvaluechanged",
-    listener: (this: this, ev: Event) => unknown,
+    listener: (
+      this: this,
+      ev: Event & { target: { value: DataView } }
+    ) => unknown,
     useCapture?: boolean
   ): void;
   addEventListener(
