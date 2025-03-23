@@ -32,20 +32,10 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ],
-      "expo-secure-store"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "68bf3e80-9eea-44f6-bae2-02daacee8c63"
-      }
-    },
-    "owner": "napatchol"
+    }
   }
 }

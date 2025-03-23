@@ -1,145 +1,74 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { Image, StyleSheet, Platform } from 'react-native';
 
-import { useState } from "react";
-import * as eva from "@eva-design/eva";
-import {
-  ApplicationProvider,
-  IconRegistry,
-  Layout,
-  Button,
-  Divider,
-  Text,
-  Input,
-  Icon,
-} from "@ui-kitten/components";
-import { EvaIconsPack } from "@ui-kitten/eva-icons";
-import { default as theme } from "@/assets/theme/custom-theme.json";
+import { HelloWave } from '@/components/HelloWave';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
-import { PasswordField } from "@/components/PasswordField";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
-import { auth, db } from "@/utils/firebaseConfig";
-
-export default function App() {
-  const [mode, setMode] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigation = useNavigation();
-
-  const signUp = async () => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      const user = userCredential.user;
-
-      // Save user info to Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        shoe: [],
-        caregiver: [],
-        createdAt: new Date(),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const signIn = () => {
-    // Firebase login logic
-    signInWithEmailAndPassword(auth, email, password)
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-  };
-
+export default function HomeScreen() {
   return (
-    <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
-      <IconRegistry icons={EvaIconsPack} />
-      <Layout style={styles.outer}>
-        <Text category="h1">Welcome to the Smart Shoe App!</Text>
-        {mode == "" ? (
-          <>
-            <Button style={styles.button} onPress={() => setMode("signin")}>
-              Sign in
-            </Button>
-            <Layout style={styles.inner}>
-              <Divider style={styles.divider} />
-              <Text>Do you have an account?</Text>
-              <Divider style={styles.divider} />
-            </Layout>
-            <Button style={styles.button} onPress={() => setMode("signup")}>
-              Sign up
-            </Button>
-          </>
-        ) : (
-          <>
-            <Layout style={styles.inner}>
-              <TouchableOpacity onPress={() => setMode("")}>
-                <Icon
-                  name="arrow-ios-back-outline"
-                  style={{ width: 32, height: 32, fill: "white" }}
-                />
-              </TouchableOpacity>
-              <Text
-                category="h4"
-                style={{ marginVertical: 20, textTransform: "capitalize" }}
-              >
-                {mode}
-              </Text>
-            </Layout>
-            <Input
-              label="Email"
-              placeholder="name@example.com"
-              value={email}
-              onChangeText={(nextValue) => setEmail(nextValue)}
-              style={styles.input}
-            />
-            <PasswordField value={password} setValue={setPassword} />
-            <Button
-              style={styles.button}
-              onPress={() => (mode === "signin" ? signIn() : signUp())}
-            >
-              {mode}
-            </Button>
-          </>
-        )}
-      </Layout>
-    </ApplicationProvider>
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/partial-react-logo.png')}
+          style={styles.reactLogo}
+        />
+      }>
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText type="title">Welcome!</ThemedText>
+        <HelloWave />
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+        <ThemedText>
+          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
+          Press{' '}
+          <ThemedText type="defaultSemiBold">
+            {Platform.select({
+              ios: 'cmd + d',
+              android: 'cmd + m',
+              web: 'F12'
+            })}
+          </ThemedText>{' '}
+          to open developer tools.
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
+        <ThemedText>
+          Tap the Explore tab to learn more about what's included in this starter app.
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
+        <ThemedText>
+          When you're ready, run{' '}
+          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
+          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
+          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
+          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+        </ThemedText>
+      </ThemedView>
+    </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  outer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  inner: {
-    display: "flex",
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+  stepContainer: {
+    gap: 8,
+    marginBottom: 8,
   },
-  button: {
-    width: "90%",
-    marginVertical: 30,
-  },
-  divider: {
-    marginHorizontal: 30,
-    height: 1,
-    backgroundColor: "white",
-    width: "15%",
-  },
-  input: {
-    width: "90%",
-    marginVertical: 20,
+  reactLogo: {
+    height: 178,
+    width: 290,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
   },
 });
