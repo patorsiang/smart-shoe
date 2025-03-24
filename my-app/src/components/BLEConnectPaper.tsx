@@ -24,14 +24,14 @@ export default function BLEConnectPaper() {
   const [bleServer, setServer] = useState<
     BluetoothRemoteGATTServer | undefined
   >();
-  const [bleService, setService] = useState<
-    BluetoothRemoteGATTService | undefined
-  >();
+  // const [bleService, setService] = useState<
+  //   BluetoothRemoteGATTService | undefined
+  // >();
 
   const [forceData, setForceData] = useState<Array<number>>([0, 0, 0]);
   const [batteryLevel, setBatteryLevel] = useState(0);
-  const [stepCount, setStepCount] = useState(0);
-  const [fallDetected, setFallDetected] = useState(false);
+  // const [stepCount, setStepCount] = useState(0);
+  // const [fallDetected, setFallDetected] = useState(false);
   const [mpu, setMPU] = useState<number[]>([]);
 
   //Define BLE Device Specs
@@ -39,7 +39,7 @@ export default function BLEConnectPaper() {
   const bleServiceUUID = "12345678-1234-5678-1234-56789abcdef0";
 
   const mpuChar = "abcdef03-1234-5678-1234-56789abcdef0";
-  const batteryChar = "abcdef02-1234-5678-1234-56789abcdef0";
+  const batteryChar = "1234abcd-5678-90ab-cdef-12345678ef09";
   const forceSensorsChars = [...Array(3).keys()].map(
     (key) => `abcdef0${key}-1234-5678-1234-56789abcdef0`
   );
@@ -55,7 +55,7 @@ export default function BLEConnectPaper() {
       const server = await device?.gatt?.connect();
       setServer(server);
       const service = await server?.getPrimaryService(bleServiceUUID);
-      setService(service);
+      // setService(service);
 
       device?.addEventListener("gattserverdisconnected", onDisconnected);
 
@@ -78,15 +78,22 @@ export default function BLEConnectPaper() {
             parseAndSetForce(i, value);
           },
           (value) => {
-            const force = value.getInt16(0, true);
-            setForceData((current) => {
-              const updated = [...current];
-              updated[i] = force;
-              return updated;
-            });
+            parseAndSetForce(i, value);
           }
         );
       });
+
+      setUpBLEChar(
+        service!,
+        batteryChar,
+        (event) => {
+          const value = event.target.value;
+          parseAndSetBattery(value);
+        },
+        (value) => {
+          parseAndSetBattery(value);
+        }
+      );
     } catch (error) {
       console.error("Error: ", error);
     }
@@ -112,21 +119,26 @@ export default function BLEConnectPaper() {
     }
   };
 
-  function parseAndSetMPU(value: DataView) {
+  const parseAndSetMPU = (value: DataView) => {
     const AcX = value.getInt16(0, true);
     const AcY = value.getInt16(2, true);
     const AcZ = value.getInt16(4, true);
     setMPU([AcX, AcY, AcZ]);
-  }
+  };
 
-  function parseAndSetForce(i: number, value: DataView) {
+  const parseAndSetForce = (i: number, value: DataView) => {
     const force = value.getInt16(0, true);
     setForceData((current) => {
       const updated = [...current];
       updated[i] = force;
       return updated;
     });
-  }
+  };
+
+  const parseAndSetBattery = (value: DataView) => {
+    const batteryLevel = value.getUint8(0);
+    setBatteryLevel(batteryLevel);
+  };
 
   const onDisconnected = () => {
     alert("Vibrator Disconnected");

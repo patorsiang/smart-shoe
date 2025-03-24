@@ -159,3 +159,43 @@ void readCalibratedAccelerometer()
   MPUChar->setValue((uint8_t *)values, sizeof(values));
   MPUChar->notify(); // Notify connected BLE devices
 }
+
+float readBatteryVoltage()
+{
+  long sum = 0;
+  const int samples = 10;
+  for (int i = 0; i < samples; i++)
+  {
+    sum += analogRead(VBAT_PIN); // or VBAT_PIN
+    delay(5);                    // slight pause
+  }
+  float averageRaw = sum / (float)samples;
+  float vADC = (averageRaw / 4095.0) * 3.3;
+
+  Serial.print("Raw ADC: ");
+  Serial.print(averageRaw);
+  Serial.print(" | ADC Voltage: ");
+  Serial.print(vADC, 2);
+
+  return vADC * 2.0; // If using built-in divider
+}
+
+float smoothVoltage = 3.7; // starting guess
+
+void getBatteryVoltage()
+{
+  // Adafruit ESP32 Feather uses a 100K + 100K divider inside
+  float batteryVoltage = readBatteryVoltage();
+
+  smoothVoltage = (0.9 * smoothVoltage) + (0.1 * batteryVoltage); // EMA filter
+
+  int batteryPercent = map(smoothVoltage * 100, 300, 420, 0, 100);
+  batteryPercent = constrain(batteryPercent, 0, 100);
+  uint8_t batteryLevel = (uint8_t)batteryPercent;
+  batteryChar->setValue(&batteryLevel, 1);
+  batteryChar->notify();
+
+  Serial.print("V | Battery Percent: ");
+  Serial.print(batteryPercent);
+  Serial.println(" %");
+}

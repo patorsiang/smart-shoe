@@ -6,11 +6,14 @@ void setup() {
   setupBLE();
   setupForceSensors();
   setupMPU();
+
+  analogReadResolution(12);
 }
 
 void loop() {
   readForceSensors();
   getAccelerometer();
+  getBatteryVoltage();
 
   delay(1000);
 }
