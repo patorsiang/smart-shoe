@@ -4,6 +4,8 @@ import { Paper, Typography, Button, Stack, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 
+type EventType = { target: { value: DataView } };
+
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#fff",
   ...theme.typography.body2,
@@ -31,7 +33,6 @@ export default function BLEConnectPaper() {
   const [stepCount, setStepCount] = useState(0);
   const [fallDetected, setFallDetected] = useState(false);
   const [mpu, setMPU] = useState<number[]>([]);
-  const [debug, setDebug] = useState("");
 
   //Define BLE Device Specs
   const deviceName = "smart-shoe-nt375";
@@ -39,7 +40,7 @@ export default function BLEConnectPaper() {
 
   const mpuChar = "abcdef03-1234-5678-1234-56789abcdef0";
   const batteryChar = "abcdef02-1234-5678-1234-56789abcdef0";
-  const forceSensorsChar = [...Array(3).keys()].map(
+  const forceSensorsChars = [...Array(3).keys()].map(
     (key) => `abcdef0${key}-1234-5678-1234-56789abcdef0`
   );
   // const stepChar = "abcd1234-5678-90ab-cdef-1234567890ef";
@@ -55,25 +56,77 @@ export default function BLEConnectPaper() {
       setServer(server);
       const service = await server?.getPrimaryService(bleServiceUUID);
       setService(service);
+
       device?.addEventListener("gattserverdisconnected", onDisconnected);
 
-      const mpuCharacteristic = await service?.getCharacteristic(mpuChar);
-
-      mpuCharacteristic?.addEventListener(
-        "characteristicvaluechanged",
-        handleMPUCharChange
+      await setUpBLEChar(
+        service!,
+        mpuChar,
+        (event) => {
+          const value = event.target.value;
+          parseAndSetMPU(value);
+        },
+        (value) => parseAndSetMPU(value)
       );
 
-      mpuCharacteristic?.startNotifications();
-
-      const mpuValue = await mpuCharacteristic?.readValue();
-      const mpuDecodedValue = new TextDecoder().decode(mpuValue);
-      setDebug(mpuDecodedValue);
-      setMPU(mpuDecodedValue.split(",").map(Number));
+      forceSensorsChars.forEach((ch, i) => {
+        setUpBLEChar(
+          service!,
+          ch,
+          (event) => {
+            const value = event.target.value;
+            parseAndSetForce(i, value);
+          },
+          (value) => {
+            const force = value.getInt16(0, true);
+            setForceData((current) => {
+              const updated = [...current];
+              updated[i] = force;
+              return updated;
+            });
+          }
+        );
+      });
     } catch (error) {
       console.error("Error: ", error);
     }
   };
+
+  const setUpBLEChar = async (
+    service: BluetoothRemoteGATTService,
+    sensorChar: string,
+    handleChange: (event: EventType) => void,
+    onInitialRead?: (value: DataView) => void
+  ) => {
+    const sensorCharacteristic = await service.getCharacteristic(sensorChar);
+
+    sensorCharacteristic.addEventListener(
+      "characteristicvaluechanged",
+      handleChange
+    );
+    await sensorCharacteristic.startNotifications();
+
+    const value = await sensorCharacteristic.readValue();
+    if (value && onInitialRead) {
+      onInitialRead(value);
+    }
+  };
+
+  function parseAndSetMPU(value: DataView) {
+    const AcX = value.getInt16(0, true);
+    const AcY = value.getInt16(2, true);
+    const AcZ = value.getInt16(4, true);
+    setMPU([AcX, AcY, AcZ]);
+  }
+
+  function parseAndSetForce(i: number, value: DataView) {
+    const force = value.getInt16(0, true);
+    setForceData((current) => {
+      const updated = [...current];
+      updated[i] = force;
+      return updated;
+    });
+  }
 
   const onDisconnected = () => {
     alert("Vibrator Disconnected");
@@ -85,15 +138,6 @@ export default function BLEConnectPaper() {
       bleServer.disconnect();
     }
   };
-
-  function handleMPUCharChange(event: { target: { value: DataView } }) {
-    const value = event.target.value;
-    const AcX = value.getInt16(0, true);
-    const AcY = value.getInt16(2, true);
-    const AcZ = value.getInt16(4, true);
-    setMPU([AcX, AcY, AcZ]);
-    setDebug(`Live X:${AcX}, Y:${AcY}, Z:${AcZ}`);
-  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -146,7 +190,6 @@ export default function BLEConnectPaper() {
           </Typography>
         )}
         <Box>
-          <Typography>Debug: {debug}</Typography>
           <Typography>MPU: {mpu.join(", ")}</Typography>
           <Typography>Battery: {batteryLevel}%</Typography>
           <Typography>Force Sensors: {forceData.join(", ")}</Typography>
