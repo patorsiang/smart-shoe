@@ -7,11 +7,12 @@ import {
   Typography,
 } from "@mui/material";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
-import BLEConnectPaper from "@/components/BLEConnectPaper";
+import BLEConnectButton from "@/components/BLEConnectButton";
+import { BLEProvider } from "@/components/contexts/BLEContext";
 
 export default function Home() {
   return (
-    <>
+    <BLEProvider>
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
@@ -19,15 +20,14 @@ export default function Home() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Smart Shoe Demo
             </Typography>
+            <BLEConnectButton />
           </Toolbar>
         </Container>
       </AppBar>
       <CssBaseline />
       <Container fixed>
         <Grid container spacing={1} sx={{ padding: "1em" }}>
-          <Grid size={12}>
-            <BLEConnectPaper />
-          </Grid>
+          <Grid size={12}></Grid>
           {/* <Grid size={6}>
             <BLEConnectPaper />
           </Grid>
@@ -36,6 +36,6 @@ export default function Home() {
           </Grid> */}
         </Grid>
       </Container>
-    </>
+    </BLEProvider>
   );
 }

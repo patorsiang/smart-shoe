@@ -1,39 +1,22 @@
 "use client";
-import { Paper, Typography, Button, Stack, Box } from "@mui/material";
-
-import { styled } from "@mui/material/styles";
 import { useEffect, useState } from "react";
+
+import { IconButton } from "@mui/material";
+import { Bluetooth, BluetoothDisabled, Brightness1 } from "@mui/icons-material";
+import { grey, lightGreen } from "@mui/material/colors";
+import { useBLEDispatch } from "./contexts/BLEContext";
 
 type EventType = { target: { value: DataView } };
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
+export default function BLEConnectButton() {
+  const [isDisabled, setIsDisabled] = useState(false);
 
-export default function BLEConnectPaper() {
-  // const [isLoading, setIsLoading] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(false);
+  const dispatch = useBLEDispatch();
+
   const [bleDevice, setDevice] = useState<BluetoothDevice | undefined>();
   const [bleServer, setServer] = useState<
     BluetoothRemoteGATTServer | undefined
   >();
-  // const [bleService, setService] = useState<
-  //   BluetoothRemoteGATTService | undefined
-  // >();
-
-  const [forceData, setForceData] = useState<Array<number>>([0, 0, 0]);
-  const [batteryLevel, setBatteryLevel] = useState(0);
-  // const [stepCount, setStepCount] = useState(0);
-  // const [fallDetected, setFallDetected] = useState(false);
-  const [mpu, setMPU] = useState<number[]>([]);
-
   //Define BLE Device Specs
   const deviceName = "smart-shoe-nt375";
   const bleServiceUUID = "12345678-1234-5678-1234-56789abcdef0";
@@ -43,8 +26,6 @@ export default function BLEConnectPaper() {
   const forceSensorsChars = [...Array(3).keys()].map(
     (key) => `abcdef0${key}-1234-5678-1234-56789abcdef0`
   );
-  // const stepChar = "abcd1234-5678-90ab-cdef-1234567890ef";
-  // const fallChar = "1234abcd-5678-90ab-cdef-1234567890ef";
 
   const connectToDevice = async () => {
     try {
@@ -55,7 +36,6 @@ export default function BLEConnectPaper() {
       const server = await device?.gatt?.connect();
       setServer(server);
       const service = await server?.getPrimaryService(bleServiceUUID);
-      // setService(service);
 
       device?.addEventListener("gattserverdisconnected", onDisconnected);
 
@@ -123,25 +103,22 @@ export default function BLEConnectPaper() {
     const AcX = value.getInt16(0, true);
     const AcY = value.getInt16(2, true);
     const AcZ = value.getInt16(4, true);
-    setMPU([AcX, AcY, AcZ]);
+    if (dispatch) {
+      dispatch({ type: "setMPU", value: [AcX, AcY, AcZ] });
+    }
   };
 
   const parseAndSetForce = (i: number, value: DataView) => {
     const force = value.getInt16(0, true);
-    setForceData((current) => {
-      const updated = [...current];
-      updated[i] = force;
-      return updated;
-    });
+    dispatch({ type: "setForce", value: { idx: i, force } });
   };
 
   const parseAndSetBattery = (value: DataView) => {
     const batteryLevel = value.getUint8(0);
-    setBatteryLevel(batteryLevel);
+    dispatch({ type: "setBatteryLevel", value: batteryLevel });
   };
 
   const onDisconnected = () => {
-    alert("Vibrator Disconnected");
     setDevice(undefined);
   };
 
@@ -150,63 +127,34 @@ export default function BLEConnectPaper() {
       bleServer.disconnect();
     }
   };
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Client-side only logic
-      setIsEnabled(!!navigator.bluetooth);
+      setIsDisabled(!navigator.bluetooth);
     }
   }, []);
 
   return (
-    <Item elevation={3} square={false}>
-      <Stack spacing={2}>
-        <Typography variant="subtitle1" component="div" sx={{ flexGrow: 1 }}>
-          BLE Connect
-        </Typography>
-        {isEnabled ? (
-          <>
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Button
-                variant="contained"
-                color="success"
-                onClick={connectToDevice}
-                disabled={bleDevice?.gatt?.connected}
-              >
-                Connect to {deviceName}
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={disconnectDevice}
-                disabled={!bleDevice?.gatt?.connected}
-              >
-                disconnect to {deviceName}
-              </Button>
-            </Stack>
-            <Typography variant="body2" component="p">
-              BLE state:
-              {bleDevice?.gatt?.connected
-                ? "connected to " + bleDevice?.name
-                : "disconnected"}
-            </Typography>
-          </>
-        ) : (
-          <Typography variant="body1" component="p">
-            Web Bluetooth API is not available in this browser/device!
-          </Typography>
-        )}
-        <Box>
-          <Typography>MPU: {mpu.join(", ")}</Typography>
-          <Typography>Battery: {batteryLevel}%</Typography>
-          <Typography>Force Sensors: {forceData.join(", ")}</Typography>
-        </Box>
-      </Stack>
-    </Item>
+    <>
+      <Brightness1
+        sx={{
+          fontSize: 12,
+          color: bleDevice?.gatt?.connected ? lightGreen["700"] : grey["50"],
+        }}
+      />
+      <IconButton
+        size="large"
+        aria-label="account of current user"
+        aria-controls="menu-appbar"
+        aria-haspopup="true"
+        color="inherit"
+        disabled={isDisabled}
+        onClick={() =>
+          bleDevice?.gatt?.connected ? disconnectDevice() : connectToDevice()
+        }
+      >
+        {bleDevice?.gatt?.connected ? <BluetoothDisabled /> : <Bluetooth />}
+      </IconButton>
+    </>
   );
 }
