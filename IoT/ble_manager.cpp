@@ -17,6 +17,8 @@ public:
   void onDisconnect(NimBLEServer *pServer, NimBLEConnInfo &connInfo, int reason) override
   {
     Serial.println("BLE Device Disconnected!");
+    pServer->startAdvertising(); // restart advertising
+    Serial.println("Start advertising");
   }
 };
 
