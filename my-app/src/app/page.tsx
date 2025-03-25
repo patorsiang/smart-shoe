@@ -9,6 +9,7 @@ import {
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import BLEConnectButton from "@/components/BLEConnectButton";
 import { BLEProvider } from "@/components/contexts/BLEContext";
+import Battery from "@/components/Battery";
 
 export default function Home() {
   return (
@@ -27,7 +28,9 @@ export default function Home() {
       <CssBaseline />
       <Container fixed>
         <Grid container spacing={1} sx={{ padding: "1em" }}>
-          <Grid size={12}></Grid>
+          <Grid size={12}>
+            <Battery />
+          </Grid>
           {/* <Grid size={6}>
             <BLEConnectPaper />
           </Grid>

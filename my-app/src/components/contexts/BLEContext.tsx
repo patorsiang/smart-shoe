@@ -1,11 +1,14 @@
 "use client";
 import { createContext, useReducer, useContext, ReactNode } from "react";
-import { BLEData, bleDataReducer, BLEAction } from "./BLEReduce";
+import { BLEInfo, bleDataReducer, BLEAction } from "./BLEReduce";
 
-export const initialBLEData: BLEData = {
-  mpu: [0, 0, 0],
-  force: [0, 0, 0],
-  battery: 0,
+export const initialBLEData: BLEInfo = {
+  ble: {},
+  data: {
+    mpu: [0, 0, 0],
+    force: [0, 0, 0],
+    battery: 0,
+  },
 };
 
 export const BLEContext = createContext(initialBLEData);

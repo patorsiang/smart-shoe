@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { IconButton } from "@mui/material";
 import { Bluetooth, BluetoothDisabled, Brightness1 } from "@mui/icons-material";
 import { grey, lightGreen } from "@mui/material/colors";
-import { useBLEDispatch } from "./contexts/BLEContext";
+import { BLEContext, useBLEDispatch } from "./contexts/BLEContext";
 
 type EventType = { target: { value: DataView } };
 
@@ -12,11 +12,9 @@ export default function BLEConnectButton() {
   const [isDisabled, setIsDisabled] = useState(false);
 
   const dispatch = useBLEDispatch();
-
-  const [bleDevice, setDevice] = useState<BluetoothDevice | undefined>();
-  const [bleServer, setServer] = useState<
-    BluetoothRemoteGATTServer | undefined
-  >();
+  const data = useContext(BLEContext);
+  const { ble } = data;
+  const { device: bleDevice, server: bleServer } = ble;
   //Define BLE Device Specs
   const deviceName = "smart-shoe-nt375";
   const bleServiceUUID = "12345678-1234-5678-1234-56789abcdef0";
@@ -32,9 +30,9 @@ export default function BLEConnectButton() {
       const device = await navigator.bluetooth.requestDevice({
         filters: [{ namePrefix: deviceName }],
       });
-      setDevice(device);
+      dispatch({ type: "setDevice", value: device });
       const server = await device?.gatt?.connect();
-      setServer(server);
+      dispatch({ type: "setServer", value: server });
       const service = await server?.getPrimaryService(bleServiceUUID);
 
       device?.addEventListener("gattserverdisconnected", onDisconnected);
@@ -119,7 +117,7 @@ export default function BLEConnectButton() {
   };
 
   const onDisconnected = () => {
-    setDevice(undefined);
+    dispatch({ type: "setServer", value: undefined });
   };
 
   const disconnectDevice = () => {

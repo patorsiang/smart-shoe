@@ -1,7 +1,8 @@
 #include "ble_manager.h"
 #include "sensor_manager.h"
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   setupBLE();
   setupForceSensors();
@@ -10,7 +11,8 @@ void setup() {
   analogReadResolution(12);
 }
 
-void loop() {
+void loop()
+{
   readForceSensors();
   getAccelerometer();
   getBatteryVoltage();

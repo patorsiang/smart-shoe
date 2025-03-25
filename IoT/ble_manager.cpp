@@ -5,6 +5,7 @@ NimBLECharacteristic *MPUChar;
 NimBLECharacteristic *stepChar;
 NimBLECharacteristic *fallChar;
 NimBLECharacteristic *batteryChar;
+NimBLECharacteristic *chargingChar;
 
 class MyServerCallbacks : public NimBLEServerCallbacks
 {
@@ -58,6 +59,10 @@ void setupBLE()
 
   batteryChar = pService->createCharacteristic(
       "1234abcd-5678-90ab-cdef-12345678ef09",
+      NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+
+  chargingChar = pService->createCharacteristic(
+      "1234abcd-5678-90ab-cdef-12345678ef10",
       NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
 
   pService->start();

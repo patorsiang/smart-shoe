@@ -13,5 +13,6 @@ extern NimBLECharacteristic *stepChar;
 extern NimBLECharacteristic *fallChar;
 extern NimBLECharacteristic *MPUChar;
 extern NimBLECharacteristic *batteryChar;
+extern NimBLECharacteristic *chargingChar;
 
 #endif
