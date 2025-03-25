@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useReducer, useContext, ReactNode } from "react";
+import { createContext, useReducer, ReactNode } from "react";
 import { BLEInfo, bleDataReducer, BLEAction } from "./BLEReduce";
 
 export const initialBLEData: BLEInfo = {
@@ -30,12 +30,4 @@ export const BLEProvider = ({ children }: Props) => {
       </BLEDispatchContext.Provider>
     </BLEContext.Provider>
   );
-};
-
-export const useBLEDispatch = () => {
-  const dispatch = useContext(BLEDispatchContext);
-  if (dispatch === null) {
-    throw new Error("useDispatch must be used within a DispatchProvider");
-  }
-  return dispatch;
 };

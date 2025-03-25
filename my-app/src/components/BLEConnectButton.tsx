@@ -4,7 +4,10 @@ import { useContext, useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
 import { Bluetooth, BluetoothDisabled, Brightness1 } from "@mui/icons-material";
 import { grey, lightGreen } from "@mui/material/colors";
-import { BLEContext, useBLEDispatch } from "./contexts/BLEContext";
+
+import { BLEContext } from "./contexts/BLEContext";
+
+import { useBLEDispatch } from "@/hooks/BLEHook";
 
 type EventType = { target: { value: DataView } };
 

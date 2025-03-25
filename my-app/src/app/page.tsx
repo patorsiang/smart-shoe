@@ -10,6 +10,8 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import BLEConnectButton from "@/components/BLEConnectButton";
 import { BLEProvider } from "@/components/contexts/BLEContext";
 import Battery from "@/components/Battery";
+import WelcomeAlert from "@/components/WelcomeAlert";
+import WifiStatus from "@/components/WifiStatus";
 
 export default function Home() {
   return (
@@ -22,6 +24,7 @@ export default function Home() {
               Smart Shoe Demo
             </Typography>
             <BLEConnectButton />
+            <WifiStatus />
           </Toolbar>
         </Container>
       </AppBar>
@@ -38,6 +41,7 @@ export default function Home() {
             <BLEConnectPaper />
           </Grid> */}
         </Grid>
+        <WelcomeAlert />
       </Container>
     </BLEProvider>
   );

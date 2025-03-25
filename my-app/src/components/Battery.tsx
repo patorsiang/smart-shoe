@@ -14,6 +14,8 @@ import {
 } from "@mui/icons-material";
 import { BLEContext } from "./contexts/BLEContext";
 
+import { useMQTT } from "@/hooks/mqttHook";
+
 const sx = { transform: "rotate(90deg)" };
 
 export default function Battery() {
@@ -32,41 +34,45 @@ export default function Battery() {
 }
 
 const BatteryBar = () => {
+  const res = useMQTT("uok/iot/nt375/smart_shoe/battery") as unknown as {
+    payload: string;
+  };
   const { ble, data } = useContext(BLEContext);
 
-  if (ble.device) {
-    if (ble.device.gatt?.connected) {
-      const batteryLevel = data.battery % 8;
-      switch (batteryLevel) {
-        case 7:
-          return <BatteryFull sx={sx} />;
+  const batteryLevel = res
+    ? Math.round(
+        (ble.device && ble.device.gatt?.connected
+          ? data.battery
+          : Number(res)) / 12.5
+      )
+    : 8;
 
-        case 6:
-          return <Battery6Bar sx={sx} />;
+  switch (batteryLevel) {
+    case 7:
+      return <BatteryFull sx={sx} />;
 
-        case 5:
-          return <Battery5Bar sx={sx} />;
+    case 6:
+      return <Battery6Bar sx={sx} />;
 
-        case 4:
-          return <Battery4Bar sx={sx} />;
+    case 5:
+      return <Battery5Bar sx={sx} />;
 
-        case 3:
-          return <Battery3Bar sx={sx} />;
+    case 4:
+      return <Battery4Bar sx={sx} />;
 
-        case 2:
-          return <Battery2Bar sx={sx} />;
+    case 3:
+      return <Battery3Bar sx={sx} />;
 
-        case 1:
-          return <Battery1Bar sx={sx} />;
+    case 2:
+      return <Battery2Bar sx={sx} />;
 
-        case 0:
-          return <Battery0Bar sx={sx} />;
+    case 1:
+      return <Battery1Bar sx={sx} />;
 
-        default:
-          return <BatteryUnknown sx={sx} />;
-      }
-    }
+    case 0:
+      return <Battery0Bar sx={sx} />;
+
+    default:
+      return <BatteryUnknown sx={sx} />;
   }
-
-  return <BatteryUnknown sx={sx} />;
 };

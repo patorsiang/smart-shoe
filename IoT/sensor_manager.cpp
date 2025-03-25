@@ -1,4 +1,5 @@
 #include "sensor_manager.h"
+#include "wifi_manager.h"
 
 int sensorPins[SENSOR_COUNT] = {A2, A3, A4};
 int readings[SENSOR_COUNT][3];
@@ -14,6 +15,7 @@ void setupForceSensors()
   {
     pinMode(sensorPins[i], INPUT);
   }
+  // set the ADC attenuation to 11 dB (up to ~3.3V input)
   analogSetAttenuation(ADC_11db);
   Serial.println("Set up Sensors");
 }
@@ -181,6 +183,8 @@ float readBatteryVoltage()
 }
 
 float smoothVoltage = 3.7; // starting guess
+unsigned long lastUploadBattery = 0;
+const unsigned long uploadIntervalBattery = 10000; // every 10 seconds
 
 void getBatteryVoltage()
 {
@@ -198,4 +202,6 @@ void getBatteryVoltage()
   Serial.print("V | Battery Percent: ");
   Serial.print(batteryPercent);
   Serial.println(" %");
+
+  lastUploadBattery = upload("uok/iot/nt375/smart_shoe/battery", String(batteryPercent), lastUploadBattery, uploadIntervalBattery);
 }
