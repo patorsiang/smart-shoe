@@ -7,7 +7,8 @@ import { grey, lightGreen } from "@mui/material/colors";
 
 import { BLEContext } from "./contexts/BLEContext";
 
-import { useBLEDispatch } from "@/hooks/BLEHook";
+import { useBLEDispatch } from "@/utils/hooks/BLEHook";
+import { decode } from "@/utils";
 
 type EventType = { target: { value: DataView } };
 
@@ -22,11 +23,12 @@ export default function BLEConnectButton() {
   const deviceName = "smart-shoe-nt375";
   const bleServiceUUID = "12345678-1234-5678-1234-56789abcdef0";
 
-  const mpuChar = "abcdef03-1234-5678-1234-56789abcdef0";
   const batteryChar = "1234abcd-5678-90ab-cdef-12345678ef09";
-  const forceSensorsChars = [...Array(3).keys()].map(
-    (key) => `abcdef0${key}-1234-5678-1234-56789abcdef0`
-  );
+  const forceChar = "abcdef01-1234-5678-1234-56789abcdef0";
+  // const gyroChar = "abcdef04-1234-5678-1234-56789abcdef0";
+  // const tempChar = "abcdef05-1234-5678-1234-56789abcdef0";
+  // const accChar = "abcdef06-1234-5678-1234-56789abcdef0";
+  // const fallChar = "1234abcd-5678-90ab-cdef-1234567890ef";
 
   const connectToDevice = async () => {
     try {
@@ -50,19 +52,17 @@ export default function BLEConnectButton() {
       //   (value) => parseAndSetMPU(value)
       // );
 
-      forceSensorsChars.forEach((ch, i) => {
-        setUpBLEChar(
-          service!,
-          ch,
-          (event) => {
-            const value = event.target.value;
-            parseAndSetForce(i, value);
-          },
-          (value) => {
-            parseAndSetForce(i, value);
-          }
-        );
-      });
+      setUpBLEChar(
+        service!,
+        forceChar,
+        (event) => {
+          const value = event.target.value;
+          parseAndSetForce(value);
+        },
+        (value) => {
+          parseAndSetForce(value);
+        }
+      );
 
       setUpBLEChar(
         service!,
@@ -100,23 +100,12 @@ export default function BLEConnectButton() {
     }
   };
 
-  const parseAndSetMPU = (value: DataView) => {
-    const AcX = value.getInt16(0, true);
-    const AcY = value.getInt16(2, true);
-    const AcZ = value.getInt16(4, true);
-    if (dispatch) {
-      dispatch({ type: "setMPU", value: [AcX, AcY, AcZ] });
-    }
-  };
-
-  const parseAndSetForce = (i: number, value: DataView) => {
-    const force = value.getInt16(0, true);
-    dispatch({ type: "setForce", value: { idx: i, force } });
+  const parseAndSetForce = (value: DataView) => {
+    dispatch({ type: "setForce", value: JSON.parse(decode(value)) });
   };
 
   const parseAndSetBattery = (value: DataView) => {
-    const batteryLevel = value.getUint8(0);
-    dispatch({ type: "setBatteryLevel", value: batteryLevel });
+    dispatch({ type: "setBatteryLevel", value: Number(decode(value)) });
   };
 
   const onDisconnected = () => {

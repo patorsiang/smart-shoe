@@ -1,10 +1,10 @@
 "use client";
 
-import { useMQTT } from "@/hooks/mqttHook";
+import { useMQTT } from "@/utils/hooks/mqttHook";
 import { Paper, Stack, Typography } from "@mui/material";
 import { grey, lightGreen, orange, red, yellow } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useMemo } from "react";
 import { BLEContext } from "./contexts/BLEContext";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -19,19 +19,19 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function FootHeatMap() {
-  const [forces, setForces] = useState([0, 0, 0]);
   const { ble, data } = useContext(BLEContext);
   const res = useMQTT("uok/iot/nt375/smart_shoe/forces") as unknown as Record<
     string,
     number
   >;
-  useEffect(() => {
-    if (ble.device && ble.device.gatt?.connected) {
-      setForces(data.force);
-    } else if (res) {
-      setForces([res[0], res[1], res[2]]);
-    }
-  }, [res, data, ble.device]);
+
+  const forces = useMemo(
+    () =>
+      ble.device && ble.device.gatt?.connected
+        ? data.force
+        : [res?.[0], res?.[1], res?.[2]],
+    [res, data, ble.device]
+  );
 
   return (
     <Item elevation={4}>
@@ -48,6 +48,9 @@ export default function FootHeatMap() {
         <Foot forces={forces} />
         <Foot disabled />
       </Stack>
+      <Typography variant="caption">
+        Pressure: {forces?.[0]}/{forces?.[1]}/{forces?.[2]}
+      </Typography>
     </Item>
   );
 }

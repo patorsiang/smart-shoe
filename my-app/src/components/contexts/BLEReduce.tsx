@@ -18,7 +18,7 @@ export type BLEAction =
   | { type: "setDevice"; value: BLE["device"] }
   | { type: "setServer"; value: BLE["server"] }
   | { type: "setMPU"; value: BLEData["mpu"] }
-  | { type: "setForce"; value: { idx: number; force: number } }
+  | { type: "setForce"; value: Record<string, number> }
   | { type: "setBatteryLevel"; value: BLEData["battery"] };
 
 export function bleDataReducer(data: BLEInfo, action: BLEAction): BLEInfo {
@@ -30,9 +30,13 @@ export function bleDataReducer(data: BLEInfo, action: BLEAction): BLEInfo {
     case "setMPU":
       return { ...data, data: { ...data.data, mpu: action.value } };
     case "setForce":
-      const updated = [...data.data.force];
-      updated[action.value.idx] = action.value.force;
-      return { ...data, data: { ...data.data, force: updated } };
+      return {
+        ...data,
+        data: {
+          ...data.data,
+          force: [action.value[0], action.value[1], action.value[2]],
+        },
+      };
     case "setBatteryLevel":
       return { ...data, data: { ...data.data, battery: action.value } };
     default:

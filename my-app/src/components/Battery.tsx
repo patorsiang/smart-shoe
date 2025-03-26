@@ -1,5 +1,5 @@
 "use client";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { Stack } from "@mui/material";
 import {
   Battery0Bar,
@@ -14,7 +14,7 @@ import {
 } from "@mui/icons-material";
 import { BLEContext } from "./contexts/BLEContext";
 
-import { useMQTT } from "@/hooks/mqttHook";
+import { useMQTT } from "@/utils/hooks/mqttHook";
 
 const sx = { transform: "rotate(90deg)" };
 
@@ -34,45 +34,40 @@ export default function Battery() {
 }
 
 const BatteryBar = () => {
-  const res = useMQTT("uok/iot/nt375/smart_shoe/battery") as unknown as {
-    payload: string;
-  };
+  const res = useMQTT("uok/iot/nt375/smart_shoe/battery");
   const { ble, data } = useContext(BLEContext);
 
-  const batteryLevel = res
-    ? Math.round(
-        (ble.device && ble.device.gatt?.connected
-          ? data.battery
-          : Number(res)) / 12.5
-      )
-    : 8;
+  const batteryLevel = useMemo(() => {
+    const raw =
+      ble.device && ble.device.gatt?.connected ? data.battery : Number(res);
 
-  switch (batteryLevel) {
-    case 7:
-      return <BatteryFull sx={sx} />;
+    if (isNaN(raw)) return -1;
 
-    case 6:
-      return <Battery6Bar sx={sx} />;
+    return Math.round(raw / 12.5); // scale 0–100 to 0–8 bars
+  }, [ble.device, data.battery, res]);
 
-    case 5:
-      return <Battery5Bar sx={sx} />;
+  const BatteryIcon = useMemo(() => {
+    switch (batteryLevel) {
+      case 7:
+        return BatteryFull;
+      case 6:
+        return Battery6Bar;
+      case 5:
+        return Battery5Bar;
+      case 4:
+        return Battery4Bar;
+      case 3:
+        return Battery3Bar;
+      case 2:
+        return Battery2Bar;
+      case 1:
+        return Battery1Bar;
+      case 0:
+        return Battery0Bar;
+      default:
+        return BatteryUnknown;
+    }
+  }, [batteryLevel]);
 
-    case 4:
-      return <Battery4Bar sx={sx} />;
-
-    case 3:
-      return <Battery3Bar sx={sx} />;
-
-    case 2:
-      return <Battery2Bar sx={sx} />;
-
-    case 1:
-      return <Battery1Bar sx={sx} />;
-
-    case 0:
-      return <Battery0Bar sx={sx} />;
-
-    default:
-      return <BatteryUnknown sx={sx} />;
-  }
+  return <BatteryIcon sx={sx} />;
 };
