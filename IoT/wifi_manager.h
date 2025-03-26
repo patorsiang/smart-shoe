@@ -13,7 +13,6 @@
 void WiFiSetUp();
 void connectToMQTT();
 unsigned long upload(String topic, String payload, unsigned long lastUpload, unsigned long uploadInterval);
-String formatData(bool isError, String payload);
 
 extern PubSubClient client;
 

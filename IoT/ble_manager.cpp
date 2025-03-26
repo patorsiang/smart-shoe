@@ -1,11 +1,12 @@
 #include "ble_manager.h"
 
-NimBLECharacteristic *forceChar[SENSOR_COUNT];
-NimBLECharacteristic *MPUChar;
+NimBLECharacteristic *forceChar;
 NimBLECharacteristic *stepChar;
 NimBLECharacteristic *fallChar;
 NimBLECharacteristic *batteryChar;
-NimBLECharacteristic *chargingChar;
+NimBLECharacteristic *gyroChar;
+NimBLECharacteristic *tempChar;
+NimBLECharacteristic *accChar;
 
 class MyServerCallbacks : public NimBLEServerCallbacks
 {
@@ -35,16 +36,8 @@ void setupBLE()
   NimBLEService *pService = pServer->createService("12345678-1234-5678-1234-56789abcdef0");
 
   // Force Sensor BLE Characteristic
-  for (int i = 0; i < SENSOR_COUNT; i++)
-  {
-    char uuid[40];
-    snprintf(uuid, sizeof(uuid), "abcdef0%d-1234-5678-1234-56789abcdef0", i);
-    forceChar[i] = pService->createCharacteristic(uuid, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
-  }
-
-  // MPU BLE Characteristic
-  MPUChar = pService->createCharacteristic(
-      "abcdef03-1234-5678-1234-56789abcdef0",
+  forceChar = pService->createCharacteristic(
+      "abcdef01-1234-5678-1234-56789abcdef0",
       NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
 
   // Step Counter BLE Characteristic
@@ -61,8 +54,16 @@ void setupBLE()
       "1234abcd-5678-90ab-cdef-12345678ef09",
       NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
 
-  chargingChar = pService->createCharacteristic(
-      "1234abcd-5678-90ab-cdef-12345678ef10",
+  gyroChar = pService->createCharacteristic(
+      "abcdef04-1234-5678-1234-56789abcdef0",
+      NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+
+  tempChar = pService->createCharacteristic(
+      "abcdef05-1234-5678-1234-56789abcdef0",
+      NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+
+  accChar = pService->createCharacteristic(
+      "abcdef06-1234-5678-1234-56789abcdef0",
       NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
 
   pService->start();

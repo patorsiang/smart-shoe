@@ -1,0 +1,13 @@
+#ifndef MPU_H
+#define MPU_H
+
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include "utils.h"
+
+void initMPU();
+void getGyroReadings();
+void getAccReadings();
+void getTemperature();
+
+#endif

@@ -1,8 +1,19 @@
 #include "multithreaded.h"
 
 TaskHandle_t forceSensorTaskHandle;
-TaskHandle_t mpuTaskHandle;
 TaskHandle_t batteryTaskHandle;
+TaskHandle_t gyroTaskHandle;
+TaskHandle_t accTaskHandle;
+TaskHandle_t tempTaskHandle;
+
+void batteryTask(void *parameter)
+{
+  while (true)
+  {
+    getBatteryVoltage();
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+  }
+}
 
 void forceSensorTask(void *parameter)
 {
@@ -13,20 +24,40 @@ void forceSensorTask(void *parameter)
   }
 }
 
+void gyroTask(void *parameter)
+{
+  while (true)
+  {
+    getGyroReadings();
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+  }
+}
+
+void accTask(void *parameter)
+{
+  while (true)
+  {
+    getAccReadings();
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+  }
+}
+
+void tempTask(void *parameter)
+{
+  while (true)
+  {
+    getTemperature();
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+  }
+}
+
 void mpuTask(void *parameter)
 {
   while (true)
   {
-    getAccelerometer();
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-  }
-}
-
-void batteryTask(void *parameter)
-{
-  while (true)
-  {
-    getBatteryVoltage();
-    vTaskDelay(10 / portTICK_PERIOD_MS);
+    getGyroReadings();
+    getAccReadings();
+    getTemperature();
+    vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }

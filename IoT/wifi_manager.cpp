@@ -24,9 +24,11 @@ void WiFiSetUp()
 
 void connectToMQTT()
 {
+  const int maxRetries = 5;
+  int retryCount = 0;
   client.setServer(MQTT_BROKER, MQTT_PORT); // set broker settings
   Serial.println("Connecting to " MQTT_BROKER);
-  while (!client.connected())
+  while (!client.connected() && retryCount < maxRetries)
   {
     if (client.connect(("ESP32-" + String(random(0xffff), HEX)).c_str()))
     {
@@ -35,7 +37,9 @@ void connectToMQTT()
     else
     {
       Serial.printf("Failed, rc=%d, try again in 5 seconds\n", client.state());
+      retryCount++;
       delay(5000);
+      WiFiSetUp();
     }
   }
 }
@@ -69,9 +73,4 @@ unsigned long upload(String topic, String payload, unsigned long lastUpload, uns
     return millis();
   }
   return lastUpload;
-}
-
-String formatData(bool isError, String payload)
-{
-  return "{ \"isError\": " + String(isError ? 1 : 0) + ", \"payload\": " + payload + " }";
 }
