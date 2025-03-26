@@ -9,6 +9,9 @@ const int MPU = 0x68;
 int16_t AcX, AcY, AcZ;
 int16_t calibratedOffsetX, calibratedOffsetY, calibratedOffsetZ;
 
+unsigned long lastUploadForce = 0;
+const unsigned long uploadIntervalForce = 10000; // every 10 secs
+
 void setupForceSensors()
 {
   for (int i = 0; i < SENSOR_COUNT; i++)
@@ -43,6 +46,8 @@ void readForceSensors()
 {
   int forePressure = 0, heelPressure = 0;
 
+  String payload = "{ ";
+
   for (int i = 0; i < SENSOR_COUNT; i++)
   {
     // Shift old values
@@ -68,7 +73,12 @@ void readForceSensors()
     // Update BLE characteristic
     forceChar[i]->setValue((uint8_t *)&filteredValue, sizeof(filteredValue)); // Send as raw bytes
     forceChar[i]->notify();                                                   // Notify connected BLE devices
+    payload += "\"" + String(i) + "\": " + filteredValue + (i == 2 ? "" : ", ");
   }
+
+  payload += " }";
+
+  lastUploadForce = upload("uok/iot/nt375/smart_shoe/forces", payload, lastUploadForce, uploadIntervalForce);
 }
 
 void readAccelerometer()
@@ -184,7 +194,7 @@ float readBatteryVoltage()
 
 float smoothVoltage = 3.7; // starting guess
 unsigned long lastUploadBattery = 0;
-const unsigned long uploadIntervalBattery = 10000; // every 10 seconds
+const unsigned long uploadIntervalBattery = 300000; // every 5 mins
 
 void getBatteryVoltage()
 {

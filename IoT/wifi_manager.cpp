@@ -24,6 +24,7 @@ void WiFiSetUp()
 
 void connectToMQTT()
 {
+  client.setServer(MQTT_BROKER, MQTT_PORT); // set broker settings
   Serial.println("Connecting to " MQTT_BROKER);
   while (!client.connected())
   {

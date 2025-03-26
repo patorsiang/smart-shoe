@@ -40,15 +40,15 @@ export default function BLEConnectButton() {
 
       device?.addEventListener("gattserverdisconnected", onDisconnected);
 
-      await setUpBLEChar(
-        service!,
-        mpuChar,
-        (event) => {
-          const value = event.target.value;
-          parseAndSetMPU(value);
-        },
-        (value) => parseAndSetMPU(value)
-      );
+      // await setUpBLEChar(
+      //   service!,
+      //   mpuChar,
+      //   (event) => {
+      //     const value = event.target.value;
+      //     parseAndSetMPU(value);
+      //   },
+      //   (value) => parseAndSetMPU(value)
+      // );
 
       forceSensorsChars.forEach((ch, i) => {
         setUpBLEChar(

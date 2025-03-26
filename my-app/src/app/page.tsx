@@ -12,6 +12,7 @@ import { BLEProvider } from "@/components/contexts/BLEContext";
 import Battery from "@/components/Battery";
 import WelcomeAlert from "@/components/WelcomeAlert";
 import WifiStatus from "@/components/WifiStatus";
+import FootHeatMap from "@/components/FootHeatMap";
 
 export default function Home() {
   return (
@@ -30,18 +31,18 @@ export default function Home() {
       </AppBar>
       <CssBaseline />
       <Container fixed>
-        <Grid container spacing={1} sx={{ padding: "1em" }}>
+        <WelcomeAlert />
+        <Grid container spacing={4} sx={{ padding: "1em" }}>
           <Grid size={12}>
             <Battery />
           </Grid>
-          {/* <Grid size={6}>
-            <BLEConnectPaper />
+          <Grid size={{ md: 6, xs: 12 }}>
+            <FootHeatMap />
           </Grid>
-          <Grid size={6}>
-            <BLEConnectPaper />
+          {/* <Grid size={{ md: 6, xs: 12 }}>
+            <FootHeatMap />
           </Grid> */}
         </Grid>
-        <WelcomeAlert />
       </Container>
     </BLEProvider>
   );
