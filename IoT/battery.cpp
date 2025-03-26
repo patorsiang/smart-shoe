@@ -31,7 +31,8 @@ void getBatteryVoltage()
 
   smoothVoltage = (0.9 * smoothVoltage) + (0.1 * batteryVoltage); // EMA filter
 
-  int batteryPercent = map(smoothVoltage * 100, 300, 420, 0, 100);
+  // int batteryPercent = map(smoothVoltage * 100, 300, 420, 0, 100);
+  int batteryPercent = map(smoothVoltage * 100, 330, 415, 0, 100);
   batteryPercent = constrain(batteryPercent, 0, 100);
 
   Serial.print("V | Battery Percent: ");
