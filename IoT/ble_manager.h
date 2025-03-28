@@ -7,6 +7,7 @@
 
 void setupBLE();
 
+extern NimBLEServer *pServer;
 extern NimBLECharacteristic *forceChar; // Declare forceChar globally
 extern NimBLECharacteristic *stepChar;
 extern NimBLECharacteristic *fallChar;

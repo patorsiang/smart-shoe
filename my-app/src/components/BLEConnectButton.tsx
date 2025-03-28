@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 
 import { IconButton } from "@mui/material";
 import { Bluetooth, BluetoothDisabled, Brightness1 } from "@mui/icons-material";
@@ -25,9 +25,9 @@ export default function BLEConnectButton() {
 
   const batteryChar = "1234abcd-5678-90ab-cdef-12345678ef09";
   const forceChar = "abcdef01-1234-5678-1234-56789abcdef0";
-  // const gyroChar = "abcdef04-1234-5678-1234-56789abcdef0";
-  // const tempChar = "abcdef05-1234-5678-1234-56789abcdef0";
-  // const accChar = "abcdef06-1234-5678-1234-56789abcdef0";
+  const accChar = "abcdef06-1234-5678-1234-56789abcdef0";
+  const gyroChar = "abcdef04-1234-5678-1234-56789abcdef0";
+  const tempChar = "abcdef05-1234-5678-1234-56789abcdef0";
   // const fallChar = "1234abcd-5678-90ab-cdef-1234567890ef";
 
   const connectToDevice = async () => {
@@ -42,25 +42,15 @@ export default function BLEConnectButton() {
 
       device?.addEventListener("gattserverdisconnected", onDisconnected);
 
-      // await setUpBLEChar(
-      //   service!,
-      //   mpuChar,
-      //   (event) => {
-      //     const value = event.target.value;
-      //     parseAndSetMPU(value);
-      //   },
-      //   (value) => parseAndSetMPU(value)
-      // );
-
       setUpBLEChar(
         service!,
         forceChar,
         (event) => {
           const value = event.target.value;
-          parseAndSetForce(value);
+          parseAndSetJSON("setForce", value);
         },
         (value) => {
-          parseAndSetForce(value);
+          parseAndSetJSON("setForce", value);
         }
       );
 
@@ -69,10 +59,42 @@ export default function BLEConnectButton() {
         batteryChar,
         (event) => {
           const value = event.target.value;
-          parseAndSetBattery(value);
+          parseAndSetNumber("setBatteryLevel", value);
         },
         (value) => {
-          parseAndSetBattery(value);
+          parseAndSetNumber("setBatteryLevel", value);
+        }
+      );
+
+      await setUpBLEChar(
+        service!,
+        accChar,
+        (event) => {
+          const value = event.target.value;
+          parseAndSetJSON("setAcc", value);
+        },
+        (value) => parseAndSetJSON("setAcc", value)
+      );
+
+      await setUpBLEChar(
+        service!,
+        gyroChar,
+        (event) => {
+          const value = event.target.value;
+          parseAndSetJSON("setGyro", value);
+        },
+        (value) => parseAndSetJSON("setGyro", value)
+      );
+
+      setUpBLEChar(
+        service!,
+        tempChar,
+        (event) => {
+          const value = event.target.value;
+          parseAndSetNumber("setTemp", value);
+        },
+        (value) => {
+          parseAndSetNumber("setTemp", value);
         }
       );
     } catch (error) {
@@ -100,12 +122,18 @@ export default function BLEConnectButton() {
     }
   };
 
-  const parseAndSetForce = (value: DataView) => {
+  const parseAndSetJSON = (
+    type: "setForce" | "setAcc" | "setGyro",
+    value: DataView
+  ) => {
     dispatch({ type: "setForce", value: JSON.parse(decode(value)) });
   };
 
-  const parseAndSetBattery = (value: DataView) => {
-    dispatch({ type: "setBatteryLevel", value: Number(decode(value)) });
+  const parseAndSetNumber = (
+    type: "setBatteryLevel" | "setTemp",
+    value: DataView
+  ) => {
+    dispatch({ type, value: Number(decode(value)) });
   };
 
   const onDisconnected = () => {
@@ -113,10 +141,16 @@ export default function BLEConnectButton() {
   };
 
   const disconnectDevice = () => {
-    if (bleServer && bleServer.connected) {
+    if (bleServer && bleDevice?.gatt?.connected) {
       bleServer.disconnect();
     }
   };
+
+  const isConnected = useMemo(
+    () => bleDevice?.gatt?.connected,
+    [bleDevice?.gatt?.connected]
+  );
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Client-side only logic
@@ -129,7 +163,7 @@ export default function BLEConnectButton() {
       <Brightness1
         sx={{
           fontSize: 12,
-          color: bleDevice?.gatt?.connected ? lightGreen["700"] : grey["50"],
+          color: isConnected ? lightGreen["700"] : grey["50"],
         }}
       />
       <IconButton
@@ -139,11 +173,9 @@ export default function BLEConnectButton() {
         aria-haspopup="true"
         color="inherit"
         disabled={isDisabled}
-        onClick={() =>
-          bleDevice?.gatt?.connected ? disconnectDevice() : connectToDevice()
-        }
+        onClick={() => (isConnected ? disconnectDevice() : connectToDevice())}
       >
-        {bleDevice?.gatt?.connected ? <BluetoothDisabled /> : <Bluetooth />}
+        {isConnected ? <BluetoothDisabled /> : <Bluetooth />}
       </IconButton>
     </>
   );

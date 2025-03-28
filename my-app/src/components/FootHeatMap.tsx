@@ -1,35 +1,24 @@
 "use client";
 
 import { useMQTT } from "@/utils/hooks/mqttHook";
-import { Paper, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { grey, lightGreen, orange, red, yellow } from "@mui/material/colors";
-import { styled } from "@mui/material/styles";
 import { useContext, useMemo } from "react";
-import { BLEContext } from "./contexts/BLEContext";
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles("dark", {
-    backgroundColor: "#1A2027",
-  }),
-}));
+import { BLEContext } from "./contexts/BLEContext";
+import { Item } from "./StyledComponents";
+
+import { mqttPath } from "@/utils";
 
 export default function FootHeatMap() {
   const { ble, data } = useContext(BLEContext);
-  const res = useMQTT("uok/iot/nt375/smart_shoe/forces") as unknown as Record<
-    string,
-    number
-  >;
+  const res = useMQTT(mqttPath("forces")) as unknown as Record<string, number>;
 
   const forces = useMemo(
     () =>
       ble.device && ble.device.gatt?.connected
         ? data.force
-        : [res?.[0], res?.[1], res?.[2]],
+        : [res?.[0] ?? 0, res?.[1] ?? 0, res?.[2] ?? 0],
     [res, data, ble.device]
   );
 
@@ -56,10 +45,12 @@ export default function FootHeatMap() {
 }
 
 // Heatmap colors based on pressure values
-const getColor = (pressure: number) => {
-  if (pressure > 3500) return red["600"]; // High pressure (Red)
-  if (pressure > 2000) return orange["400"]; // Medium pressure (Orange)
-  if (pressure > 400) return yellow["400"]; // Low pressure (Yellow)
+const getColor = (pressure?: number) => {
+  if (pressure) {
+    if (pressure > 3500) return red["600"]; // High pressure (Red)
+    if (pressure > 2000) return orange["400"]; // Medium pressure (Orange)
+    if (pressure > 400) return yellow["400"]; // Low pressure (Yellow)
+  }
   return lightGreen["400"]; // No pressure (Green)
 };
 
@@ -76,7 +67,7 @@ const Foot = (props: { disabled?: boolean; forces?: Array<number> }) => {
         cx="100"
         cy="50"
         r="40"
-        fill={defaultColor(getColor(forces?.[0] ?? 0))}
+        fill={defaultColor(getColor(forces?.[0]))}
       />
 
       {/* Midfoot (middle part of insole) */}
@@ -84,7 +75,7 @@ const Foot = (props: { disabled?: boolean; forces?: Array<number> }) => {
         cx="100"
         cy="150"
         r="30"
-        fill={defaultColor(getColor(forces?.[1] ?? 0))}
+        fill={defaultColor(getColor(forces?.[1]))}
       />
 
       {/* Heel (bottom part of insole) */}
@@ -92,7 +83,7 @@ const Foot = (props: { disabled?: boolean; forces?: Array<number> }) => {
         cx="100"
         cy="300"
         r="50"
-        fill={defaultColor(getColor(forces?.[2] ?? 0))}
+        fill={defaultColor(getColor(forces?.[2]))}
       />
 
       {/* Outline of the insole */}

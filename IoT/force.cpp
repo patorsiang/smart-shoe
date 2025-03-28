@@ -69,6 +69,7 @@ void readForceSensors() {
 
   String jsonString = JSON.stringify(readingsJSON);
   forceChar->setValue(jsonString);
+  forceChar->notify();
   lastUploadForce = upload("uok/iot/nt375/smart_shoe/forces", jsonString, lastUploadForce, uploadIntervalForce);
 }
 

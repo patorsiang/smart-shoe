@@ -7,7 +7,8 @@
 #include "mpu.h"
 
 JSONVar readingsJSONWelcome;
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   delay(100);
   setupBLE();
@@ -30,21 +31,23 @@ void setup() {
   // xTaskCreatePinnedToCore(tempTask, "Temp Task", 8192, NULL, 1, &tempTaskHandle, 1);
 }
 
-void loop() {
+void loop()
+{
   getBatteryVoltage();
   readForceSensors();
   getGyroReadings();
   getAccReadings();
   getTemperature();
-  delay(10);  // give watchdog a breath
+  delay(10); // give watchdog a breath
 
-  if (shouldSleep()) {
+  if (shouldSleep())
+  {
+    ;
     Serial.println("No pressure detected — entering deep sleep...");
     readingsJSONWelcome["msg"] = "Enter Light Sleep Mode";
     readingsJSONWelcome["isError"] = false;
     upload("uok/iot/nt375/smart_shoe/info", JSON.stringify(readingsJSONWelcome), 0, 0);
-    // esp_deep_sleep_start();
     esp_light_sleep_start();
-    delay(100);  // allow print to finish
+    delay(100); // allow print to finish
   }
 }
