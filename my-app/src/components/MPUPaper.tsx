@@ -6,6 +6,7 @@ import { Item } from "./StyledComponents";
 import { BLEContext } from "./contexts/BLEContext";
 import { useMQTT } from "@/utils/hooks/mqttHook";
 import { mqttPath } from "@/utils";
+import Cube3D from "./Cube3D";
 
 export default function MPUPaper() {
   const { ble, data } = useContext(BLEContext);
@@ -55,6 +56,7 @@ export default function MPUPaper() {
         <Template val={acc} name="accelerometer" unit="rad/s" />
         <Template val={gyro} name="gyroscope" unit="ms^2" />
       </Stack>
+      <Cube3D gyro={gyro} />
     </Item>
   );
 }
