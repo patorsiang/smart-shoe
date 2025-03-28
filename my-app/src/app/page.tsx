@@ -13,7 +13,7 @@ import Battery from "@/components/Battery";
 import WelcomeAlert from "@/components/AlertMessage";
 import WifiStatus from "@/components/WifiStatus";
 import FootHeatMap from "@/components/FootHeatMap";
-import MPUpaper from "@/components/MPUPaper";
+import MPUPaper from "@/components/MPUPaper";
 
 export default function Home() {
   return (
@@ -43,7 +43,7 @@ export default function Home() {
             <FootHeatMap />
           </Grid>
           <Grid size={{ md: 6, xs: 12 }}>
-            <MPUpaper />
+            <MPUPaper />
           </Grid>
         </Grid>
       </Container>

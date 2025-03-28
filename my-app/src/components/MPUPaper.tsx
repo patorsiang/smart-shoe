@@ -53,8 +53,8 @@ export default function MPUPaper() {
         }}
       >
         <Template val={temp} name="temperature" unit="°C" />
-        <Template val={acc} name="accelerometer" unit="rad/s" />
-        <Template val={gyro} name="gyroscope" unit="ms^2" />
+        <Template val={acc} name="accelerometer" unit="ms^2" />
+        <Template val={gyro} name="gyroscope" unit="rad/s" />
       </Stack>
       <Cube3D gyro={gyro} />
     </Item>

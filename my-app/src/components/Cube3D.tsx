@@ -87,5 +87,14 @@ export default function Cube3D({ gyro }: { gyro: Record<string, number> }) {
     }
   }, [cube, gyro]);
 
+  useEffect(() => {
+    if (!cube || !gyro) return;
+
+    // Smoothly interpolate current rotation towards new gyro values
+    cube.rotation.x += ((gyro?.["y"] ?? 0) - cube.rotation.x) * 0.1;
+    cube.rotation.y += ((gyro?.["x"] ?? 0) - cube.rotation.y) * 0.1;
+    cube.rotation.z += ((gyro?.["z"] ?? 0) - cube.rotation.z) * 0.1;
+  }, [cube, gyro]);
+
   return <Box ref={ref}></Box>;
 }

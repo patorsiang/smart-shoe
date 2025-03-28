@@ -5,7 +5,11 @@ import { BLEInfo, bleDataReducer, BLEAction } from "./BLEReduce";
 export const initialBLEData: BLEInfo = {
   ble: {},
   data: {
-    mpu: [0, 0, 0],
+    mpu: {
+      acc: { x: 0, y: 0, z: 0 },
+      gyro: { x: 0, y: 0, z: 0 },
+      temp: 0,
+    },
     force: [0, 0, 0],
     battery: 0,
   },

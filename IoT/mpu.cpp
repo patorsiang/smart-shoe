@@ -13,10 +13,8 @@ float gyroX, gyroY, gyroZ;
 float accX, accY, accZ;
 float temperature;
 
-// Gyroscope sensor deviation
-float gyroXerror = 0.07;
-float gyroYerror = 0.03;
-float gyroZerror = 0.01;
+float accXOffset = 0.0, accYOffset = 0.0, accZOffset = 0.0;
+float gyroXerror = 0.0, gyroYerror = 0.0, gyroZerror = 0.0;
 
 // Timer variables
 unsigned long lastUploadGyro = 0;
@@ -25,6 +23,37 @@ unsigned long lastUploadAcc = 0;
 unsigned long uploadIntervalGyro = 15000 + (esp_random() % 3000);
 unsigned long uploadIntervalTemp = 15000 + (esp_random() % 3000);
 unsigned long uploadIntervalAcc = 15000 + (esp_random() % 3000);
+
+void calibrateMPU(int samples = 500)
+{
+  float gx = 0, gy = 0, gz = 0;
+  float ax = 0, ay = 0, az = 0;
+
+  Serial.println("Calibrating MPU... Please keep the device still.");
+  for (int i = 0; i < samples; i++)
+  {
+    mpu.getEvent(&a, &g, &temp);
+    gx += g.gyro.x;
+    gy += g.gyro.y;
+    gz += g.gyro.z;
+
+    ax += a.acceleration.x;
+    ay += a.acceleration.y;
+    az += a.acceleration.z;
+    delay(5);
+  }
+
+  // store average offsets
+  gyroXerror = gx / samples;
+  gyroYerror = gy / samples;
+  gyroZerror = gz / samples;
+
+  accXOffset = ax / samples;
+  accYOffset = ay / samples;
+  accZOffset = az / samples - 9.81;
+
+  Serial.println("Calibration complete.");
+}
 
 // Init MPU6050
 void initMPU()
@@ -38,6 +67,7 @@ void initMPU()
     }
   }
   Serial.println("MPU6050 Found!");
+  calibrateMPU();
 }
 
 void getGyroReadings()
@@ -45,21 +75,23 @@ void getGyroReadings()
   mpu.getEvent(&a, &g, &temp);
 
   float gyroX_temp = g.gyro.x;
-  if (abs(gyroX_temp) > gyroXerror)
+
+  if (abs(gyroX_temp - gyroXerror) > 0.01)
   {
-    gyroX += gyroX_temp / 50.00;
+    // simple low-pass filter (smoothing)
+    gyroX = (gyroX * 0.9) + ((gyroX_temp - gyroXerror) * 0.1);
   }
 
   float gyroY_temp = g.gyro.y;
-  if (abs(gyroY_temp) > gyroYerror)
+  if (abs(gyroY_temp - gyroYerror) > 0.01)
   {
-    gyroY += gyroY_temp / 70.00;
+    gyroY = (gyroY * 0.9) + ((gyroY_temp - gyroYerror) * 0.1);
   }
 
   float gyroZ_temp = g.gyro.z;
-  if (abs(gyroZ_temp) > gyroZerror)
+  if (abs(gyroZ_temp - gyroZerror) > 0.01)
   {
-    gyroZ += gyroZ_temp / 90.00;
+    gyroZ = (gyroZ * 0.9) + ((gyroZ_temp - gyroZerror) * 0.1);
   }
 
   readingsJSONGyro["x"] = gyroX;
@@ -88,15 +120,17 @@ void getAccReadings()
 {
   mpu.getEvent(&a, &g, &temp);
   // Get current acceleration values
-  accX = a.acceleration.x;
-  accY = a.acceleration.y;
-  accZ = a.acceleration.z;
+  // Apply offsets
+  accX = a.acceleration.x - accXOffset;
+  accY = a.acceleration.y - accYOffset;
+  accZ = a.acceleration.z - accZOffset;
+
   readingsJSONAcc["x"] = accX;
   readingsJSONAcc["y"] = accY;
   readingsJSONAcc["z"] = accZ;
   String jsonString = JSON.stringify(readingsJSONAcc);
   Serial.println(jsonString);
-  accChar->setValue(readingsJSONAcc);
+  accChar->setValue(jsonString);
   accChar->notify();
   lastUploadAcc = upload("uok/iot/nt375/smart_shoe/acc", jsonString, lastUploadAcc, uploadIntervalAcc);
 }
