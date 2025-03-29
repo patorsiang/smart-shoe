@@ -1,7 +1,7 @@
 #ifndef BATTERY_H
 #define BATTERY_H
 
-#include "utils.h"
+#include "global_heads.h"
 
 #define VBAT_PIN 35
 

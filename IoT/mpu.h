@@ -3,7 +3,7 @@
 
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
-#include "utils.h"
+#include "global_heads.h"
 
 void initMPU();
 void getGyroReadings();

@@ -1,8 +1,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <Arduino_JSON.h>
-#include "wifi_manager.h"
-#include "ble_manager.h"
+#include "global_heads.h"
+#include "force.h"
+#include "mpu.h"
+
+int getTotalForce();
 
 #endif

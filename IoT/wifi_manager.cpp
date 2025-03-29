@@ -1,4 +1,5 @@
 #include "wifi_manager.h"
+#include "global_params.h"
 
 WiFiClient espClient;
 PubSubClient client(espClient);

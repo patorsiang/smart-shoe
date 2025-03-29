@@ -1,8 +1,5 @@
 #include "battery.h"
-
-float smoothVoltage = 3.7; // starting guess
-unsigned long lastUploadBattery = 0;
-const unsigned long uploadIntervalBattery = 300000; // every 5 mins
+#include "global_params.h"
 
 float readBatteryVoltage()
 {

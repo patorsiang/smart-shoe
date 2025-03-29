@@ -1,4 +1,5 @@
 #include "ble_manager.h"
+#include "global_params.h"
 
 NimBLECharacteristic *forceChar;
 NimBLECharacteristic *stepChar;

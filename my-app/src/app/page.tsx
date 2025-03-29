@@ -10,7 +10,7 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import BLEConnectButton from "@/components/BLEConnectButton";
 import { BLEProvider } from "@/components/contexts/BLEContext";
 import Battery from "@/components/Battery";
-import WelcomeAlert from "@/components/AlertMessage";
+import AlertMessage from "@/components/AlertMessage";
 import WifiStatus from "@/components/WifiStatus";
 import FootHeatMap from "@/components/FootHeatMap";
 import MPUPaper from "@/components/MPUPaper";
@@ -37,7 +37,7 @@ export default function Home() {
             <Battery />
           </Grid>
           <Grid size={12}>
-            <WelcomeAlert />
+            <AlertMessage />
           </Grid>
           <Grid size={{ md: 6, xs: 12 }}>
             <FootHeatMap />

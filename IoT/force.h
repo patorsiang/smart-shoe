@@ -1,10 +1,7 @@
 #ifndef FORCE_H
 #define FORCE_H
 
-#include "utils.h"
-#include "config.h"
-
-#define FORCE_WAKEUP_THRESHOLD 100
+#include "global_heads.h"
 
 void setupForceSensors();
 void readForceSensors();

@@ -1,11 +1,8 @@
 #include "mpu.h"
+#include "global_params.h"
 
 // Create a sensor object
 Adafruit_MPU6050 mpu;
-
-// Json Variable to Hold Sensor readingsJSON
-JSONVar readingsJSONGyro;
-JSONVar readingsJSONAcc;
 
 sensors_event_t a, g, temp;
 
