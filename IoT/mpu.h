@@ -9,5 +9,6 @@ void initMPU();
 void getGyroReadings();
 void getAccReadings();
 void getTemperature();
+void updateMPUEvents();
 
 #endif

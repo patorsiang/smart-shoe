@@ -29,7 +29,6 @@ export default function BLEConnectButton() {
   const gyroChar = "abcdef04-1234-5678-1234-56789abcdef0";
   const tempChar = "abcdef05-1234-5678-1234-56789abcdef0";
   const stepChar = "abcd1234-5678-90ab-cdef-1234567890ef";
-  // const fallChar = "1234abcd-5678-90ab-cdef-1234567890ef";
 
   const connectToDevice = async () => {
     try {
@@ -69,7 +68,7 @@ export default function BLEConnectButton() {
 
       setUpBLEChar(
         service!,
-        batteryChar,
+        stepChar,
         (event) => {
           const value = event.target.value;
           parseAndSetNumber("setStep", value);

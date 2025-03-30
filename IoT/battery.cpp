@@ -5,6 +5,7 @@ float readBatteryVoltage()
 {
   long sum = 0;
   const int samples = 10;
+
   for (int i = 0; i < samples; i++)
   {
     sum += analogRead(VBAT_PIN); // or VBAT_PIN
@@ -26,9 +27,11 @@ void getBatteryVoltage()
   // Adafruit ESP32 Feather uses a 100K + 100K divider inside
   float batteryVoltage = readBatteryVoltage();
 
+  // Exponential Moving Average filter
   smoothVoltage = (0.9 * smoothVoltage) + (0.1 * batteryVoltage); // EMA filter
 
-  // int batteryPercent = map(smoothVoltage * 100, 300, 420, 0, 100);
+  // Mapping voltage to percentage:
+  // 4.15V = 100% (fully charged), 3.30V = 0% (safe minimum for LiPo)
   int batteryPercent = map(smoothVoltage * 100, 330, 415, 0, 100);
   batteryPercent = constrain(batteryPercent, 0, 100);
 
@@ -40,5 +43,5 @@ void getBatteryVoltage()
   batteryChar->setValue(batteryPercentString);
   batteryChar->notify();
 
-  lastUploadBattery = upload("uok/iot/nt375/smart_shoe/battery", batteryPercentString, lastUploadBattery, uploadIntervalBattery);
+  lastUploadBattery = upload(BATTERY_TOPIC, batteryPercentString, lastUploadBattery, uploadIntervalBattery);
 }

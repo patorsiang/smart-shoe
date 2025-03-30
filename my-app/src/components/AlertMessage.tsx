@@ -26,7 +26,7 @@ export default function AlertMessage() {
 
   return (
     <>
-      {messages.map((msg, i) => (
+      {messages.reverse().map((msg, i) => (
         <AlertMessageTemplate res={msg} key={i} />
       ))}
     </>

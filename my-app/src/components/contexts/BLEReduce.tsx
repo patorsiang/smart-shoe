@@ -87,6 +87,11 @@ export function bleDataReducer(data: BLEInfo, action: BLEAction): BLEInfo {
       };
     case "setBatteryLevel":
       return { ...data, data: { ...data.data, battery: action.value } };
+    case "setStep":
+      return {
+        ...data,
+        data: { ...data.data, step: action.value },
+      };
     default:
       throw new Error("Unknown action");
   }

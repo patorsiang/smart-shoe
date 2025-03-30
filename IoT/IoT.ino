@@ -1,12 +1,12 @@
 #include "global_heads.h"
-
+#include "global_params.h"
 // #include "multithreaded.h"
+
 #include "mpu.h"
 #include "battery.h"
 #include "detectPostureImbalance.h"
 #include "detectStep.h"
-
-#include "global_params.h"
+#include "detectFalling.h"
 
 void setup()
 {
@@ -20,9 +20,10 @@ void setup()
   delay(100);
   Serial.print("ESP Reset Reason: ");
   Serial.println(esp_reset_reason());
+  readingsJSONInfo["title"] = "Hello world";
   readingsJSONInfo["msg"] = "Hello from Smart Shoe!";
   readingsJSONInfo["type"] = "info";
-  upload("uok/iot/nt375/smart_shoe/info", JSON.stringify(readingsJSONInfo), 0, 0);
+  upload(INFO_TOPIC, JSON.stringify(readingsJSONInfo), 0, 0);
 
   // xTaskCreatePinnedToCore(forceSensorTask, "Force Sensor Task", 8192, NULL, 1, &forceSensorTaskHandle, 0);
   // xTaskCreatePinnedToCore(batteryTask, "Battery Task", 8192, NULL, 1, &batteryTaskHandle, 0);
@@ -36,20 +37,23 @@ void loop()
 {
   getBatteryVoltage();
   readForceSensors();
+  updateMPUEvents();
   getGyroReadings();
   getAccReadings();
   getTemperature();
   detectPostureImbalance();
   detectStep();
-  
+  detectFalling();
+
   delay(10); // give watchdog a breath
 
   if (shouldSleep())
   {
     Serial.println("No pressure detected — entering deep sleep...");
+    readingsJSONInfo["title"] = "Newsletter";
     readingsJSONInfo["msg"] = "Enter Light Sleep Mode";
     readingsJSONInfo["type"] = "info";
-    upload("uok/iot/nt375/smart_shoe/info", JSON.stringify(readingsJSONInfo), 0, 0);
+    upload(INFO_TOPIC, JSON.stringify(readingsJSONInfo), 0, 0);
     esp_light_sleep_start();
     delay(100); // allow print to finish
   }

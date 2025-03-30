@@ -21,7 +21,7 @@ void calibrateMPU(int samples = 500)
   Serial.println("Calibrating MPU... Please keep the device still.");
   for (int i = 0; i < samples; i++)
   {
-    mpu.getEvent(&a, &g, &temp);
+    updateMPUEvents();
     gx += g.gyro.x;
     gy += g.gyro.y;
     gz += g.gyro.z;
@@ -62,8 +62,6 @@ void initMPU()
 
 void getGyroReadings()
 {
-  mpu.getEvent(&a, &g, &temp);
-
   float gyroX_temp = g.gyro.x;
 
   if (abs(gyroX_temp - gyroXerror) > 0.01)
@@ -92,23 +90,21 @@ void getGyroReadings()
   Serial.println(jsonString);
   gyroChar->setValue(jsonString);
   gyroChar->notify();
-  lastUploadGyro = upload("uok/iot/nt375/smart_shoe/gyro", jsonString, lastUploadGyro, uploadIntervalGyro);
+  lastUploadGyro = upload(GYRO_TOPIC, jsonString, lastUploadGyro, uploadIntervalGyro);
 }
 
 void getTemperature()
 {
-  mpu.getEvent(&a, &g, &temp);
   temperature = temp.temperature;
   Serial.print("Temperature: ");
   Serial.println(temperature);
   tempChar->setValue(temperature);
   tempChar->notify();
-  lastUploadTemp = upload("uok/iot/nt375/smart_shoe/temp", String(temperature), lastUploadTemp, uploadIntervalTemp);
+  lastUploadTemp = upload(TEMP_TOPIC, String(temperature), lastUploadTemp, uploadIntervalTemp);
 }
 
 void getAccReadings()
 {
-  mpu.getEvent(&a, &g, &temp);
   // Get current acceleration values
   // Apply offsets
   accX = a.acceleration.x - accXOffset;
@@ -122,5 +118,10 @@ void getAccReadings()
   Serial.println(jsonString);
   accChar->setValue(jsonString);
   accChar->notify();
-  lastUploadAcc = upload("uok/iot/nt375/smart_shoe/acc", jsonString, lastUploadAcc, uploadIntervalAcc);
+  lastUploadAcc = upload(ACC_TOPIC, jsonString, lastUploadAcc, uploadIntervalAcc);
+}
+
+void updateMPUEvents()
+{
+  mpu.getEvent(&a, &g, &temp);
 }

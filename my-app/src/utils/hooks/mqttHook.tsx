@@ -15,7 +15,8 @@ export const useMQTT = (topic: string) => {
       });
     });
 
-    client.on("message", (_topic, payload) => {
+    client.on("message", (topic, payload) => {
+      if (topic.includes("_log")) return;
       setRes(JSON.parse(payload.toString()));
     });
 

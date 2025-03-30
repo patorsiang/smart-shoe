@@ -48,6 +48,6 @@ void detectPostureImbalance()
     readingsJSONInfo["msg"] = "Front: " + String(frontPct) + "%, Mid: " + String(midPct) + "%, Heel: " + String(heelPct) + "%";
     readingsJSONInfo["type"] = "warning";
 
-    upload("uok/iot/nt375/smart_shoe/info", JSON.stringify(readingsJSONInfo), 0, 0);
+    lastUploadUB = upload(INFO_TOPIC, JSON.stringify(readingsJSONInfo), lastUploadUB, uploadIntervalUB);
   }
 }

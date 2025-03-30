@@ -29,5 +29,5 @@ void detectStep()
   {
     stepDetected = false;
   }
-  lastUploadStep = upload("uok/iot/nt375/smart_shoe/step", String(stepCount), lastUploadStep, uploadIntervalStep);
+  lastUploadStep = upload(STEP_TOPIC, String(stepCount), lastUploadStep, uploadIntervalStep);
 }

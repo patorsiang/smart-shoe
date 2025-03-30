@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useMemo } from "react";
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import {
   Battery0Bar,
   Battery1Bar,
@@ -38,17 +38,20 @@ const BatteryBar = () => {
   const res = useMQTT(mqttPath("battery"));
   const { ble, data } = useContext(BLEContext);
 
-  const batteryLevel = useMemo(() => {
+  const battery = useMemo(() => {
     const raw =
       ble.device && ble.device.gatt?.connected ? data.battery : Number(res);
 
-    if (isNaN(raw)) return -1;
+    if (isNaN(raw)) return { level: -1, raw: 0 };
 
-    return Math.round(raw / 12.5); // scale 0–100 to 0–8 bars
+    return {
+      level: Math.round(raw / 12.5), // scale 0–100 to 0–8 bars.
+      raw,
+    };
   }, [ble.device, data.battery, res]);
 
   const BatteryIcon = useMemo(() => {
-    switch (batteryLevel) {
+    switch (battery.level) {
       case 7:
         return BatteryFull;
       case 6:
@@ -68,7 +71,12 @@ const BatteryBar = () => {
       default:
         return BatteryUnknown;
     }
-  }, [batteryLevel]);
+  }, [battery]);
 
-  return <BatteryIcon sx={sx} />;
+  return (
+    <>
+      {battery.level !== -1 && <Typography>{`${battery.raw} %`}</Typography>}
+      <BatteryIcon sx={sx} />
+    </>
+  );
 };

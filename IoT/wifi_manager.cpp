@@ -51,11 +51,12 @@ void disconnect()
   delay(100); // Give some time to disconnect
   WiFi.mode(WIFI_OFF);
   delay(100); // Let the system shut down WiFi stack gracefully
+  Serial.println("Wi-Fi OFF. Waiting for next upload...");
 }
 
 unsigned long upload(String topic, String payload, unsigned long lastUpload, unsigned long uploadInterval)
 {
-  if (millis() - lastUpload > uploadInterval)
+  if ((millis() - lastUpload > uploadInterval) || lastUpload == 0)
   {
     WiFiSetUp();
     connectToMQTT();
@@ -70,7 +71,6 @@ unsigned long upload(String topic, String payload, unsigned long lastUpload, uns
     }
     // delay(100); // Let MQTT transmission complete
     // disconnect();
-    Serial.println("Wi-Fi OFF. Waiting for next upload...");
     return millis();
   }
   return lastUpload;

@@ -9,6 +9,7 @@ void setupForceSensors()
   for (int i = 0; i < SENSOR_COUNT; i++)
   {
     pinMode(sensorPins[i], INPUT);
+    // esp_sleep_enable_ext0_wakeup((gpio_num_t)sensorPins[i], 1); // Wake on HIGH
   }
   // set the ADC attenuation to 11 dB (up to ~3.3V input)
   analogSetAttenuation(ADC_11db);
@@ -74,7 +75,7 @@ void readForceSensors()
   String jsonString = JSON.stringify(readingsJSONForce);
   forceChar->setValue(jsonString);
   forceChar->notify();
-  lastUploadForce = upload("uok/iot/nt375/smart_shoe/forces", jsonString, lastUploadForce, uploadIntervalForce);
+  lastUploadForce = upload(FORCE_TOPIC, jsonString, lastUploadForce, uploadIntervalForce);
 }
 
 unsigned long lastActiveTime = 0;
