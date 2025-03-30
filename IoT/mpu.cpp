@@ -13,14 +13,6 @@ float temperature;
 float accXOffset = 0.0, accYOffset = 0.0, accZOffset = 0.0;
 float gyroXerror = 0.0, gyroYerror = 0.0, gyroZerror = 0.0;
 
-// Timer variables
-unsigned long lastUploadGyro = 0;
-unsigned long lastUploadTemp = 0;
-unsigned long lastUploadAcc = 0;
-unsigned long uploadIntervalGyro = 15000 + (esp_random() % 3000);
-unsigned long uploadIntervalTemp = 15000 + (esp_random() % 3000);
-unsigned long uploadIntervalAcc = 15000 + (esp_random() % 3000);
-
 void calibrateMPU(int samples = 500)
 {
   float gx = 0, gy = 0, gz = 0;
@@ -48,6 +40,7 @@ void calibrateMPU(int samples = 500)
   accXOffset = ax / samples;
   accYOffset = ay / samples;
   accZOffset = az / samples - 9.81;
+  previousAz = accZOffset;
 
   Serial.println("Calibration complete.");
 }

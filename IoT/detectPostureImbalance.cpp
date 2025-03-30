@@ -8,9 +8,9 @@ void detectPostureImbalance()
   Serial.println("Checking your posture...");
   float total = (float)getTotalForce();
   // Calculate percentage contribution
-  float frontPct = ((double)readingsJSONForce["0"] / total);
-  float midPct = ((double)readingsJSONForce["1"] / total);
-  float heelPct = ((double)readingsJSONForce["2"] / total);
+  float frontPct = ((double)getForce(0) / total);
+  float midPct = ((double)getForce(1) / total);
+  float heelPct = ((double)getForce(2) / total);
 
   // Define acceptable ranges
   const float minFront = 0.25, maxFront = 0.5;

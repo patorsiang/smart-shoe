@@ -6,6 +6,7 @@ export interface BLEData {
   };
   force: Array<number>;
   battery: number;
+  step: number;
 }
 
 export interface BLE {
@@ -25,7 +26,8 @@ export type BLEAction =
   | { type: "setGyro"; value: BLEData["mpu"]["gyro"] }
   | { type: "setTemp"; value: BLEData["mpu"]["temp"] }
   | { type: "setForce"; value: Record<string, number> }
-  | { type: "setBatteryLevel"; value: BLEData["battery"] };
+  | { type: "setBatteryLevel"; value: BLEData["battery"] }
+  | { type: "setStep"; value: BLEData["step"] };
 
 export function bleDataReducer(data: BLEInfo, action: BLEAction): BLEInfo {
   switch (action.type) {

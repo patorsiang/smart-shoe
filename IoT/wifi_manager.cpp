@@ -68,8 +68,8 @@ unsigned long upload(String topic, String payload, unsigned long lastUpload, uns
     {
       Serial.println("Failed to upload data.");
     }
-    delay(100); // Let MQTT transmission complete
-    disconnect();
+    // delay(100); // Let MQTT transmission complete
+    // disconnect();
     Serial.println("Wi-Fi OFF. Waiting for next upload...");
     return millis();
   }

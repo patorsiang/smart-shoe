@@ -15,6 +15,7 @@ import {
 import { BLEContext } from "./contexts/BLEContext";
 
 import { useMQTT } from "@/utils/hooks/mqttHook";
+import { mqttPath } from "@/utils";
 
 const sx = { transform: "rotate(90deg)" };
 
@@ -34,7 +35,7 @@ export default function Battery() {
 }
 
 const BatteryBar = () => {
-  const res = useMQTT("uok/iot/nt375/smart_shoe/battery");
+  const res = useMQTT(mqttPath("battery"));
   const { ble, data } = useContext(BLEContext);
 
   const batteryLevel = useMemo(() => {

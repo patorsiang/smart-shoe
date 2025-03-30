@@ -1,5 +1,7 @@
 "use client";
-import { createContext, useReducer, ReactNode } from "react";
+import { createContext, useReducer } from "react";
+import { Props } from "@/components/types";
+
 import { BLEInfo, bleDataReducer, BLEAction } from "./BLEReduce";
 
 export const initialBLEData: BLEInfo = {
@@ -12,14 +14,11 @@ export const initialBLEData: BLEInfo = {
     },
     force: [0, 0, 0],
     battery: 0,
+    step: 0,
   },
 };
 
 export const BLEContext = createContext(initialBLEData);
-
-type Props = {
-  children: ReactNode; // <- from React
-};
 
 type Dispatch = (action: BLEAction) => void;
 

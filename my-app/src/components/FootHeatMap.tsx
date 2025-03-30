@@ -6,7 +6,8 @@ import { grey, lightGreen, orange, red, yellow } from "@mui/material/colors";
 import { useContext, useMemo } from "react";
 
 import { BLEContext } from "./contexts/BLEContext";
-import { Item } from "./StyledComponents";
+
+import ItemPaperTemplate from "./ItemPaperTemplate";
 
 import { mqttPath } from "@/utils";
 
@@ -23,10 +24,7 @@ export default function FootHeatMap() {
   );
 
   return (
-    <Item elevation={4}>
-      <Typography variant="h6" component="h6">
-        Foot Heat Map
-      </Typography>
+    <ItemPaperTemplate title="Foot Heat Map">
       <Stack
         direction="row"
         sx={{
@@ -40,7 +38,7 @@ export default function FootHeatMap() {
       <Typography variant="caption">
         Pressure: {forces?.[0]}/{forces?.[1]}/{forces?.[2]}
       </Typography>
-    </Item>
+    </ItemPaperTemplate>
   );
 }
 

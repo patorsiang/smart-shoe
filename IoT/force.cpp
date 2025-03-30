@@ -4,9 +4,6 @@
 int sensorPins[SENSOR_COUNT] = {A2, A3, A4};
 int readings[SENSOR_COUNT][3];
 
-unsigned long lastUploadForce = 0;
-const unsigned long uploadIntervalForce = 15000 + (esp_random() % 3000); // every 10 secs
-
 void setupForceSensors()
 {
   for (int i = 0; i < SENSOR_COUNT; i++)
@@ -95,7 +92,7 @@ bool shouldSleep()
   Serial.print("Average force: ");
   Serial.println(avg);
 
-  if (avg > FORCE_WAKEUP_THRESHOLD)
+  if (avg > FORCE_THRESHOLD)
   {
     lastActiveTime = millis(); // user is active
   }

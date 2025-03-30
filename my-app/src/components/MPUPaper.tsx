@@ -2,11 +2,12 @@
 import { useContext, useMemo } from "react";
 import { Stack, Typography } from "@mui/material";
 
-import { Item } from "./StyledComponents";
 import { BLEContext } from "./contexts/BLEContext";
 import { useMQTT } from "@/utils/hooks/mqttHook";
 import { mqttPath } from "@/utils";
+
 import Cube3D from "./Cube3D";
+import ItemPaperTemplate from "./ItemPaperTemplate";
 
 export default function MPUPaper() {
   const { ble, data } = useContext(BLEContext);
@@ -39,10 +40,7 @@ export default function MPUPaper() {
   );
 
   return (
-    <Item elevation={4}>
-      <Typography variant="h6" component="h6">
-        MPU Raw Data
-      </Typography>
+    <ItemPaperTemplate title="MPU Raw Data">
       <Stack
         direction="row"
         spacing={3}
@@ -57,7 +55,7 @@ export default function MPUPaper() {
         <Template val={gyro} name="gyroscope" unit="rad/s" />
       </Stack>
       <Cube3D gyro={gyro} />
-    </Item>
+    </ItemPaperTemplate>
   );
 }
 

@@ -6,7 +6,12 @@ int getTotalForce()
   int total = 0;
   for (int i = 0; i < SENSOR_COUNT; i++)
   {
-    total += (int)readingsJSONForce[String(i)];
+    total += getForce(i);
   }
   return total;
+}
+
+int getForce(int i)
+{
+  return (int)readingsJSONForce[String(i)];
 }

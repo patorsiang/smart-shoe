@@ -6,5 +6,6 @@
 #include "mpu.h"
 
 int getTotalForce();
+int getForce(int i);
 
 #endif

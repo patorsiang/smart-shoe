@@ -1,9 +1,11 @@
-#include "ble_manager.h"
+#include "global_heads.h"
+
 // #include "multithreaded.h"
 #include "mpu.h"
 #include "battery.h"
-#include "wifi_manager.h"
 #include "detectPostureImbalance.h"
+#include "detectStep.h"
+
 #include "global_params.h"
 
 void setup()
@@ -38,6 +40,8 @@ void loop()
   getAccReadings();
   getTemperature();
   detectPostureImbalance();
+  detectStep();
+  
   delay(10); // give watchdog a breath
 
   if (shouldSleep())
