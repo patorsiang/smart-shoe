@@ -28,9 +28,12 @@ public:
 
 class MyCMDCallbacks : public NimBLECharacteristicCallbacks
 {
-  void onWrite(NimBLECharacteristic *pCharacteristic)
+  void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo)
   {
     std::string command = pCharacteristic->getValue();
+
+    Serial.print("Commard: ");
+    Serial.println(command.c_str());
 
     if (command == "sleep_light")
     {
@@ -43,6 +46,8 @@ class MyCMDCallbacks : public NimBLECharacteristicCallbacks
     else if (command == "calibrate")
     {
       calibrateMPU();
+    } else if (command == "reset_step") {
+      stepCount = 0;
     }
   }
 };
@@ -91,14 +96,14 @@ void setupBLE()
 
   NimBLECharacteristic *cmdChar = pService->createCharacteristic(
       "beb5483e-36e1-4688-b7f5-ea07361b26a8",
-      NIMBLE_PROPERTY::WRITE);
+      NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::READ);
 
   cmdChar->setCallbacks(new MyCMDCallbacks());
 
   pService->start();
 
   NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID("12345678-1234-5678-1234-56789abcdef2");
+  pAdvertising->addServiceUUID("12345678-1234-5678-1234-56789abcdef0");
   pAdvertising->start();
   Serial.printf("BLE Advertising Started: %s\n", BLE_NAME);
 }

@@ -5,6 +5,7 @@ import {
   AppBar,
   Toolbar,
   Typography,
+  Stack,
 } from "@mui/material";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import BLEConnectButton from "@/components/BLEConnectButton";
@@ -15,6 +16,7 @@ import WifiStatus from "@/components/WifiStatus";
 import FootHeatMap from "@/components/FootHeatMap";
 import MPUPaper from "@/components/MPUPaper";
 import CountStep from "@/components/CountStep";
+import ResetButton from "@/components/ResetButton";
 
 export default function Home() {
   return (
@@ -35,7 +37,16 @@ export default function Home() {
       <Container fixed>
         <Grid container spacing={4} sx={{ padding: "1em" }}>
           <Grid size={12}>
-            <Battery />
+            <Stack
+              direction="row"
+              sx={{
+                justifyContent: "flex-end",
+                alignItems: "center",
+              }}
+            >
+              <Battery />
+              <ResetButton />
+            </Stack>
           </Grid>
           <Grid size={12}>
             <AlertMessage />

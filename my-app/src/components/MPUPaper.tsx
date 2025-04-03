@@ -1,9 +1,10 @@
 "use client";
 import { useContext, useMemo } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 
 import { BLEContext } from "./contexts/BLEContext";
 import { useMQTT } from "@/utils/hooks/mqttHook";
+import { useCMDButton } from "@/utils/hooks/BLEcmdHook";
 import { mqttPath } from "@/utils";
 
 import Cube3D from "./Cube3D";
@@ -11,6 +12,8 @@ import ItemPaperTemplate from "./ItemPaperTemplate";
 
 export default function MPUPaper() {
   const { ble, data } = useContext(BLEContext);
+
+  const { isDisabled, handleClick } = useCMDButton("calibrate");
 
   const tempRes = useMQTT(mqttPath("temp")) as unknown as number;
   const accRes = useMQTT(mqttPath("acc")) as unknown as Record<string, number>;
@@ -42,17 +45,30 @@ export default function MPUPaper() {
   return (
     <ItemPaperTemplate title="MPU Raw Data">
       <Stack
-        direction="row"
-        spacing={3}
-        sx={{
-          justifyContent: "space-around",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-        }}
+        spacing={1}
+        sx={{ justifyContent: "center", alignItems: "center" }}
       >
-        <Template val={temp} name="temperature" unit="°C" />
-        <Template val={acc} name="accelerometer" unit="ms^2" />
-        <Template val={gyro} name="gyroscope" unit="rad/s" />
+        <Button
+          variant="outlined"
+          sx={{ width: "fit-content" }}
+          disabled={isDisabled}
+          onClick={handleClick}
+        >
+          Calibrate MPU
+        </Button>
+        <Stack
+          direction="row"
+          spacing={3}
+          sx={{
+            justifyContent: "space-around",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+          }}
+        >
+          <Template val={temp} name="temperature" unit="°C" />
+          <Template val={acc} name="accelerometer" unit="ms^2" />
+          <Template val={gyro} name="gyroscope" unit="rad/s" />
+        </Stack>
       </Stack>
       <Cube3D gyro={gyro} />
     </ItemPaperTemplate>

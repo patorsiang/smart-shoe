@@ -22,8 +22,8 @@ void detectFalling()
   {
     lastAccMagnitude = accMagnitude;
     readingsJSONInfo["title"] = "⚠️ Warning: Possible Fall Detection!";
-    readingsJSONInfo["msg"] = debug;
-    // readingsJSONInfo["msg"] = "A possible fall has been detected. Please check on the elder under your care.";
+    // readingsJSONInfo["msg"] = debug;
+    readingsJSONInfo["msg"] = "A possible fall has been detected. Please check on the elder under your care.";
     readingsJSONInfo["type"] = "warning";
     lastUploadFall = upload(INFO_TOPIC, JSON.stringify(readingsJSONInfo), lastUploadFall, uploadIntervalFall);
   }

@@ -21,6 +21,7 @@ export default function BLEConnectButton() {
   const { device: bleDevice, server: bleServer } = ble;
   //Define BLE Device Specs
   const deviceName = "smart-shoe-nt375";
+  // const deviceName = "nt375";
   const bleServiceUUID = "12345678-1234-5678-1234-56789abcdef0";
 
   const batteryChar = "1234abcd-5678-90ab-cdef-12345678ef09";
@@ -29,6 +30,7 @@ export default function BLEConnectButton() {
   const gyroChar = "abcdef04-1234-5678-1234-56789abcdef0";
   const tempChar = "abcdef05-1234-5678-1234-56789abcdef0";
   const stepChar = "abcd1234-5678-90ab-cdef-1234567890ef";
+  const cmdChar = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
   const connectToDevice = async () => {
     try {
@@ -41,6 +43,13 @@ export default function BLEConnectButton() {
       const service = await server?.getPrimaryService(bleServiceUUID);
 
       device?.addEventListener("gattserverdisconnected", onDisconnected);
+
+      const commandChar = await service?.getCharacteristic(cmdChar);
+
+      dispatch({
+        type: "setCMDChar",
+        value: commandChar,
+      });
 
       setUpBLEChar(
         service!,

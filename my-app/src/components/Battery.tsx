@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useMemo } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import {
   Battery0Bar,
   Battery1Bar,
@@ -20,18 +20,7 @@ import { mqttPath } from "@/utils";
 const sx = { transform: "rotate(90deg)" };
 
 export default function Battery() {
-  return (
-    <Stack
-      direction="row"
-      spacing={2}
-      sx={{
-        justifyContent: "flex-end",
-        alignItems: "center",
-      }}
-    >
-      <BatteryBar />
-    </Stack>
-  );
+  return <BatteryBar />;
 }
 
 const BatteryBar = () => {

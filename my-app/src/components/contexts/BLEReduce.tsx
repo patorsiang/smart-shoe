@@ -12,6 +12,7 @@ export interface BLEData {
 export interface BLE {
   device?: BluetoothDevice;
   server?: BluetoothRemoteGATTServer;
+  cmdChar?: BluetoothRemoteGATTCharacteristic;
 }
 
 export interface BLEInfo {
@@ -27,7 +28,8 @@ export type BLEAction =
   | { type: "setTemp"; value: BLEData["mpu"]["temp"] }
   | { type: "setForce"; value: Record<string, number> }
   | { type: "setBatteryLevel"; value: BLEData["battery"] }
-  | { type: "setStep"; value: BLEData["step"] };
+  | { type: "setStep"; value: BLEData["step"] }
+  | { type: "setCMDChar"; value: BLE["cmdChar"] };
 
 export function bleDataReducer(data: BLEInfo, action: BLEAction): BLEInfo {
   switch (action.type) {
@@ -91,6 +93,14 @@ export function bleDataReducer(data: BLEInfo, action: BLEAction): BLEInfo {
       return {
         ...data,
         data: { ...data.data, step: action.value },
+      };
+    case "setCMDChar":
+      return {
+        ...data,
+        ble: {
+          ...data.ble,
+          cmdChar: action.value,
+        },
       };
     default:
       throw new Error("Unknown action");
