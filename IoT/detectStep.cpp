@@ -7,15 +7,15 @@ void detectStep()
   int mid = getForce(1);
   int heel = getForce(2);
 
-  double az = (double)readingsJSONAcc["z"];
-  double deltaAz = abs(az - previousAz);
-  previousAz = az;
+  double ay = (double)readingsJSONAcc["y"];
+  double deltaAy = abs(ay - previousAy);
+  previousAy = ay;
 
   unsigned long now = millis();
-  String debug = " Step " + String(stepCount) + "| Accel Z: " + String(deltaAz) + " g | Heel: " + String(heel) + "| Mid: " + String(mid) + "| Front: " + String(front);
+  String debug = " Step " + String(stepCount) + "| Accel Y: " + String(deltaAy) + " g | Heel: " + String(heel) + "| Mid: " + String(mid) + "| Front: " + String(front);
   Serial.println(debug);
 
-  if (deltaAz > ACCEL_THRESHOLD && heel > FORCE_THRESHOLD && mid > FORCE_THRESHOLD && front > FORCE_THRESHOLD && !stepDetected && (now - lastStepTime > DEBOUNCE_TIME))
+  if (deltaAy > ACCEL_THRESHOLD && heel > FORCE_THRESHOLD && mid > FORCE_THRESHOLD && front > FORCE_THRESHOLD && !stepDetected && (now - lastStepTime > DEBOUNCE_TIME))
   {
     stepDetected = true;
     lastStepTime = now;

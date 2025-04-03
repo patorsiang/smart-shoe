@@ -138,7 +138,9 @@ export default function BLEConnectButton() {
     type: "setForce" | "setAcc" | "setGyro",
     value: DataView
   ) => {
-    dispatch({ type: type, value: JSON.parse(decode(value)) });
+    const decodedValue = decode(value);
+    if (decodedValue)
+      dispatch({ type: type, value: JSON.parse(decode(value)) });
   };
 
   const parseAndSetNumber = (

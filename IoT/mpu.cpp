@@ -38,9 +38,8 @@ void calibrateMPU(int samples = 500)
   gyroZerror = gz / samples;
 
   accXOffset = ax / samples;
-  accYOffset = ay / samples;
-  accZOffset = az / samples - 9.81;
-  previousAz = accZOffset;
+  accYOffset = ay / samples - 9.81;
+  accZOffset = az / samples;
 
   Serial.println("Calibration complete.");
 }
