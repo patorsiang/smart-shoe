@@ -10,5 +10,6 @@ void getGyroReadings();
 void getAccReadings();
 void getTemperature();
 void updateMPUEvents();
+void calibrateMPU(int samples = 500);
 
 #endif

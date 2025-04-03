@@ -13,7 +13,7 @@ float temperature;
 float accXOffset = 0.0, accYOffset = 0.0, accZOffset = 0.0;
 float gyroXerror = 0.0, gyroYerror = 0.0, gyroZerror = 0.0;
 
-void calibrateMPU(int samples = 500)
+void calibrateMPU(int samples)
 {
   float gx = 0, gy = 0, gz = 0;
   float ax = 0, ay = 0, az = 0;

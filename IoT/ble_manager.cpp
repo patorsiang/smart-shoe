@@ -1,4 +1,5 @@
 #include "ble_manager.h"
+#include "mpu.h"
 #include "global_params.h"
 
 NimBLECharacteristic *forceChar;
@@ -22,6 +23,27 @@ public:
     Serial.println("BLE Device Disconnected!");
     pServer->startAdvertising(); // restart advertising
     Serial.println("Start advertising");
+  }
+};
+
+class MyCMDCallbacks : public NimBLECharacteristicCallbacks
+{
+  void onWrite(NimBLECharacteristic *pCharacteristic)
+  {
+    std::string command = pCharacteristic->getValue();
+
+    if (command == "sleep_light")
+    {
+      esp_light_sleep_start();
+    }
+    else if (command == "sleep_deep")
+    {
+      esp_deep_sleep_start();
+    }
+    else if (command == "calibrate")
+    {
+      calibrateMPU();
+    }
   }
 };
 
@@ -66,6 +88,12 @@ void setupBLE()
   accChar = pService->createCharacteristic(
       "abcdef06-1234-5678-1234-56789abcdef0",
       NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+
+  NimBLECharacteristic *cmdChar = pService->createCharacteristic(
+      "beb5483e-36e1-4688-b7f5-ea07361b26a8",
+      NIMBLE_PROPERTY::WRITE);
+
+  cmdChar->setCallbacks(new MyCMDCallbacks());
 
   pService->start();
 
