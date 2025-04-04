@@ -47,7 +47,7 @@ extern const unsigned long uploadIntervalGyro;
 extern const unsigned long uploadIntervalTemp;
 extern const unsigned long uploadIntervalAcc;
 
-extern double previousAy;
+extern double previousAx;
 extern int stepCount;
 extern bool stepDetected;
 extern unsigned long lastStepTime;

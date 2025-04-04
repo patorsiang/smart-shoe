@@ -18,7 +18,7 @@ const unsigned long uploadIntervalGyro = 15000 + (esp_random() % 3000);
 const unsigned long uploadIntervalTemp = 15000 + (esp_random() % 3000);
 const unsigned long uploadIntervalAcc = 15000 + (esp_random() % 3000);
 
-double previousAy = 9.8;
+double previousAx = 9.81;
 int stepCount = 0;
 bool stepDetected = false;
 unsigned long lastStepTime = 0;
